@@ -5,7 +5,7 @@
 <p align="center"><b>Un inicio limpio, sin anuncios y a tu manera para Fire TV.</b><br>
 Launcher para Amazon Fire TV (Fire OS 7/8) con panel web, salvapantallas propio, fondos de vídeo y control por voz.</p>
 
-<p align="center"><img src="landing/img/inicio.jpg" width="820" alt="Pantalla de inicio de Aura"></p>
+<p align="center"><img src="landing/img/aura.png" width="820" alt="Pantalla de inicio de Aura"></p>
 
 ---
 
@@ -24,6 +24,7 @@ Launcher para Amazon Fire TV (Fire OS 7/8) con panel web, salvapantallas propio,
 11. [Solución de problemas](#solución-de-problemas)
 12. [Limitaciones conocidas](#limitaciones-conocidas)
 13. [Créditos](#créditos)
+14. [Licencia](#licencia)
 
 ---
 
@@ -333,5 +334,11 @@ El proyecto usa AGP 9.2, Kotlin 2.3, Gradle 9.4 (wrapper incluido), `compileSdk 
 - Iconos: [Reicon](https://reicon.dev) (MIT).
 - Librerías: Jetpack Compose, AndroidX Media3 (ExoPlayer), NanoHTTPD, ZXing, kotlinx.serialization y kotlinx.coroutines.
 - Clima: [Open-Meteo](https://open-meteo.com).
+
+## Licencia
+
+El código de Aura se publica bajo la [licencia MIT](LICENSE).
+Las fotos de los fondos mantienen su propia licencia (sobre todo CC BY-SA), indicada para cada una en
+`app/src/main/assets/credits.json`. Los iconos Reicon también son MIT.
 
 Aura es un proyecto personal y no está afiliado a Amazon. *Fire TV* y *Fire OS* son marcas de Amazon.
