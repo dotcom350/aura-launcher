@@ -49,7 +49,7 @@ Launcher para Amazon Fire TV (Fire OS 7/8) con panel web, salvapantallas propio,
 ## Instalar en un Fire TV
 
 **Descarga:** la última versión siempre está en
-[`Releases › latest › Aura.apk`](../../releases/latest/download/Aura.apk) (enlace fijo) y en la landing del proyecto (GitHub Pages).
+[`Aura.apk`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura.apk) (enlace fijo) y en la landing: <https://dotcom350.github.io/aura-launcher/>.
 
 ### Opción A — Desde el PC con ADB (recomendada)
 
@@ -261,11 +261,7 @@ El proyecto usa AGP 9.2, Kotlin 2.3, Gradle 9.4 (wrapper incluido), `compileSdk 
 
 ### Una sola vez: preparar el repositorio en GitHub
 
-1. Crea el repositorio y sube el código:
-   ```powershell
-   git remote add origin https://github.com/TU_USUARIO/aura-launcher.git
-   git push -u origin main
-   ```
+1. Repositorio: [github.com/dotcom350/aura-launcher](https://github.com/dotcom350/aura-launcher) (rama `main`).
 2. **Secretos de firma** (*Settings › Secrets and variables › Actions › New repository secret*).
    Las versiones deben firmarse siempre con la misma clave para que se instalen encima.
    Para seguir usando la clave con la que ya está instalada Aura (la de depuración de Android Studio):
@@ -301,8 +297,8 @@ El proyecto usa AGP 9.2, Kotlin 2.3, Gradle 9.4 (wrapper incluido), `compileSdk 
    `Aura-1.8.apk` y `Aura.apk`, y publica la **landing** con los datos y novedades de esa versión. Sigue el progreso en la pestaña *Actions*.
 
 **Enlaces fijos para compartir:**
-- Última versión: `https://github.com/TU_USUARIO/aura-launcher/releases/latest/download/Aura.apk`
-- Landing: `https://TU_USUARIO.github.io/aura-launcher/`
+- Última versión: `https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura.apk`
+- Landing: `https://dotcom350.github.io/aura-launcher/`
 
 **Reglas:** `versionCode` siempre sube (Android rechaza instalar un código menor o igual); la versión solo se cambia con `release.ps1`; no subas nunca `keystore.properties`, `*.keystore` ni `.mcp.json` (el `.gitignore` ya los excluye).
 
