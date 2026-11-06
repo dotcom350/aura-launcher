@@ -187,7 +187,7 @@ aura-launcher/
 ├── tools/
 │   ├── gen_icons.py              Genera iconos web y drawables desde Reicon
 │   └── alt-build-dir.gradle      Compila en otra carpeta si el APK está bloqueado
-├── .github/workflows/            build.yml (comprobación) y release.yml (publicación)
+├── .github/workflows/            build.yml (comprobación), release.yml (Release) y pages.yml (landing)
 ├── version.properties            Versión de la app (única fuente)
 ├── CHANGELOG.md                  Novedades por versión
 └── keystore.properties.example   Plantilla para firmar en local
@@ -295,7 +295,8 @@ El proyecto usa AGP 9.2, Kotlin 2.3, Gradle 9.4 (wrapper incluido), `compileSdk 
    convierte `[Sin publicar]` en `[1.8] - fecha`, hace commit, crea la etiqueta `v1.8` y la sube.
    Sin `-Push` solo lo deja preparado en local (te dice cómo subirlo o deshacerlo). Con `-Test` antes compila e instala la release en la TV.
 4. GitHub Actions (`release.yml`) compila el APK firmado, comprueba que la etiqueta coincide con la versión, crea la **Release** con
-   `Aura-1.8.apk` y `Aura.apk`, y publica la **landing** con los datos y novedades de esa versión. Sigue el progreso en la pestaña *Actions*.
+   `Aura-1.8.apk` y `Aura.apk`. Al terminar, `pages.yml` publica la **landing** con los datos y novedades de esa versión
+   (corre sobre `main`, que es desde donde GitHub Pages permite publicar). Sigue el progreso en la pestaña *Actions*.
 
 **Enlaces fijos para compartir:**
 - Última versión: `https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura.apk`
