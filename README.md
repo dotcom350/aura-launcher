@@ -54,7 +54,7 @@ Launcher para Amazon Fire TV (Fire OS 7/8) con panel web, salvapantallas propio,
 
 | | |
 |---|---|
-| **Instalador para Windows** (recomendado) | [`Aura-Instalador-Windows.zip`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura-Instalador-Windows.zip) |
+| **Instalador para Windows** (recomendado) | [`Instalar-Aura.bat`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Instalar-Aura.bat) (o en [.zip](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura-Instalador-Windows.zip)) |
 | **APK** | [`Aura.apk`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura.apk) |
 | **En el Fire TV con Downloader** | código **`7090026`** |
 | **Landing** | <https://dotcom350.github.io/aura-launcher/> |
@@ -63,7 +63,8 @@ Launcher para Amazon Fire TV (Fire OS 7/8) con panel web, salvapantallas propio,
 
 1. En el Fire TV: **Ajustes › Mi Fire TV › Opciones de desarrollador › Depuración ADB: activada**.
    (Si no ves "Opciones de desarrollador": *Mi Fire TV › Información*, pulsa 7 veces sobre el nombre del dispositivo.)
-2. Descarga [`Aura-Instalador-Windows.zip`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura-Instalador-Windows.zip) y haz doble clic en **`Instalar-Aura.bat`** (funciona incluso sin descomprimir).
+2. Descarga [`Instalar-Aura.bat`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Instalar-Aura.bat) y haz doble clic en él. Si el navegador avisa del tipo de archivo, elige *Conservar*.
+   ¿Prefieres el [.zip](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura-Instalador-Windows.zip)? Descomprímelo primero (clic derecho › *Extraer todo*) y haz doble clic en `Instalar-Aura.bat`.
    Windows pide permiso de administrador: pulsa *Sí*. Si aparece *Windows protegió su PC*: *Más información › Ejecutar de todas formas*.
 3. Cuando la TV pregunte **"¿Permitir depuración?"**, acepta (marca *Permitir siempre*).
 
