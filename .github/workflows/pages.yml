@@ -1,0 +1,65 @@
+# Publica la landing (carpeta landing/) en GitHub Pages con los datos de la ultima Release.
+# Corre sobre main (Pages solo admite despliegues desde main):
+#   - al terminar el flujo "Release" (cada version nueva),
+#   - al cambiar la landing en main,
+#   - o a mano desde la pestana Actions.
+name: Pages
+
+on:
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+  push:
+    branches: [main]
+    paths: ["landing/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Datos de la ultima version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p dist
+          if gh release download --repo "$GITHUB_REPOSITORY" --pattern Aura.apk --dir dist; then
+            tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
+            name=${tag#v}
+            repo="https://github.com/$GITHUB_REPOSITORY"
+            # release_info.py lee version.properties: se usa la de la Release publicada
+            sed -i "s/^versionName=.*/versionName=$name/" version.properties
+            python3 scripts/release_info.py --apk dist/Aura.apk \
+              --file-url "$repo/releases/download/$tag/Aura-$name.apk" \
+              --latest-url "$repo/releases/latest/download/Aura.apk"
+          else
+            echo "Todavia no hay ninguna Release: la landing se publica sin datos de version."
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: landing
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
