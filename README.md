@@ -63,8 +63,12 @@ Launcher para Amazon Fire TV (Fire OS 7/8) con panel web, salvapantallas propio,
 
 1. En el Fire TV: **Ajustes › Mi Fire TV › Opciones de desarrollador › Depuración ADB: activada**.
    (Si no ves "Opciones de desarrollador": *Mi Fire TV › Información*, pulsa 7 veces sobre el nombre del dispositivo.)
-2. Descarga [`Aura-Instalador-Windows.zip`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura-Instalador-Windows.zip), descomprímelo y haz doble clic en **`Instalar-Aura.bat`**.
+2. Descarga [`Aura-Instalador-Windows.zip`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura-Instalador-Windows.zip) y haz doble clic en **`Instalar-Aura.bat`** (funciona incluso sin descomprimir).
+   Windows pide permiso de administrador: pulsa *Sí*. Si aparece *Windows protegió su PC*: *Más información › Ejecutar de todas formas*.
 3. Cuando la TV pregunte **"¿Permitir depuración?"**, acepta (marca *Permitir siempre*).
+
+La ventana muestra cada paso (con barra de progreso en las descargas) y no se cierra hasta que pulses una tecla.
+Si algo falla, lo explica en rojo y guarda un registro en `%LOCALAPPDATA%\AuraInstaller\instalacion.log`.
 
 El instalador descarga las herramientas ADB de Google, busca tu Fire TV en la red, descarga la última Aura de
 GitHub, la instala, concede los permisos y la abre. Opciones: `Instalar-Aura.bat -Ip 192.168.1.50` si no encuentra

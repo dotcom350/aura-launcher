@@ -81,3 +81,4 @@ jobs:
             dist/Aura-${{ env.VERSION }}.apk
             dist/Aura.apk
             dist/Aura-Instalador-Windows.zip
+            installer/windows/Instalar-Aura.bat
