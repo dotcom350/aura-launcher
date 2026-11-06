@@ -6,7 +6,7 @@ usa estas notas en la Release y en la landing. Escribe cada cambio como una lín
 
 ## [Sin publicar]
 
-- Instalador para Windows rehecho: se descarga directamente como `Instalar-Aura.bat` (sin zip), se ejecuta como administrador, muestra cada paso con barras de progreso, explica los errores y no se cierra solo. Guarda un registro de la instalación.
+- Instalador para Windows rehecho: se descarga directamente como `Instalar-Aura.bat` (sin zip), se ejecuta como administrador, muestra cada paso con barras de progreso, explica los errores y no se cierra solo. Guarda un registro de la instalación. Usa la ruta completa de PowerShell, así funciona aunque no esté en el PATH de Windows.
 
 ## [1.9] - 2026-11-06
 
