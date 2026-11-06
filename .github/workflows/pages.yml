@@ -25,12 +25,16 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    # El commit "Aura X.Y" de release.ps1 no publica: lo hace el flujo Release al terminar (workflow_run)
+    if: >-
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') &&
+      (github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'Aura '))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
 
       - name: Datos de la ultima version
         env:
@@ -41,8 +45,8 @@ jobs:
             tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
             name=${tag#v}
             repo="https://github.com/$GITHUB_REPOSITORY"
-            # release_info.py lee version.properties: se usa la de la Release publicada
-            sed -i "s/^versionName=.*/versionName=$name/" version.properties
+            # release_info.py lee version.properties: se usa el de la etiqueta de la Release publicada
+            git show "$tag:version.properties" > version.properties
             python3 scripts/release_info.py --apk dist/Aura.apk \
               --file-url "$repo/releases/download/$tag/Aura-$name.apk" \
               --latest-url "$repo/releases/latest/download/Aura.apk"
