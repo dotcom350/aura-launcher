@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- flagRequestFilterKeyEvents: Aura recibe la tecla Inicio antes que Fire OS (y deja pasar todas las demas). -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagRequestFilterKeyEvents|flagReportViewIds|flagRetrieveInteractiveWindows"
+    android:notificationTimeout="0"
+    android:canRetrieveWindowContent="true"
+    android:canRequestFilterKeyEvents="true"
+    android:canTakeScreenshot="true"
+    android:description="@string/acc_desc" />

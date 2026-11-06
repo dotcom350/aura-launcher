@@ -1,0 +1,28 @@
+# Comprueba que Aura compila en cada push a main y en cada pull request (no publica nada).
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags-ignore: ["v*"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Compilar (debug)
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --console=plain "-Dorg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aura-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7

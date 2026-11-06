@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "aura-tv": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-I", "C:\\ruta\\a\\aura-launcher\\mcp\\aura_mcp.py"],
+      "env": {
+        "AURA_HOST": "192.168.1.50",
+        "AURA_PORT": "8765",
+        "AURA_TOKEN": "token-de-tu-tv",
+        "AURA_PIN": "",
+        "ADB_PATH": "C:\\platform-tools\\adb.exe"
+      }
+    }
+  }
+}

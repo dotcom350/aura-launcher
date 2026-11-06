@@ -1,0 +1,1096 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0b0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aura">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Aura</title>
+<script src="/icons.js"></script>
+<style>
+:root{
+  --bg:#0c0b0a;--panel:rgba(26,25,23,.62);--panel2:rgba(255,255,255,.06);--line:rgba(255,255,255,.085);--line2:rgba(255,255,255,.16);
+  --txt:#f6f4f0;--mut:#a7a29a;--acc:#f0c987;--acc-soft:rgba(240,201,135,.14);--light:#f6f3ee;--ink:#151311;--ok:#7fdca4;--bad:#ff7a6b;
+  --r:24px;--gap:20px;--blur:saturate(150%) blur(24px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font:15px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;color:var(--txt);background:var(--bg);overflow-x:hidden}
+#backdrop{position:fixed;inset:-60px;z-index:-2;background:#0c0b0a center/cover no-repeat;filter:blur(44px) saturate(120%) brightness(.5);transform:scale(1.1);transition:background-image .8s}
+#backdrop:after{content:"";position:absolute;inset:0;background:radial-gradient(70% 55% at 15% 0%,rgba(240,201,135,.08),transparent 60%),linear-gradient(180deg,rgba(12,11,10,.3),rgba(12,11,10,.88))}
+.ic{display:inline-flex;width:1.25em;height:1.25em;flex:none}
+.ic svg{width:100%;height:100%;fill:currentColor}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:10px 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,background .2s,border-color .2s}
+button:hover{background:rgba(255,255,255,.11);border-color:var(--line2)}
+button:active{transform:scale(.95)}
+button:disabled{opacity:.35;pointer-events:none}
+button.pri{background:var(--light);border:0;color:var(--ink);font-weight:650;box-shadow:0 10px 26px -12px rgba(0,0,0,.9)}
+button.pri:hover{background:#fff}
+button.ghost{background:transparent;border-color:transparent}
+button.icon{padding:9px;border-radius:12px}
+button.danger{color:var(--bad)}
+.ask{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;background:rgba(6,5,4,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:askIn .18s ease-out}
+.ask.hidden{display:none}
+.ask-card{width:100%;max-width:400px;background:#1b1a18;border:1px solid var(--line2);border-radius:24px;padding:26px 24px 20px;box-shadow:0 40px 80px -30px #000;text-align:center;animation:askPop .22s cubic-bezier(.2,.9,.3,1.2)}
+.ask-ic{width:54px;height:54px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:var(--acc-soft);color:var(--acc)}
+.ask-ic .ic{width:26px;height:26px}
+.ask.danger .ask-ic{background:rgba(255,122,107,.14);color:var(--bad)}
+.ask h3{margin:0 0 6px;font-size:19px;line-height:1.3;word-break:break-word}
+.ask p{margin:0 0 14px;font-size:14px}
+.ask input{width:100%;text-align:center;font-size:22px;letter-spacing:.4em;padding:12px}
+.ask .err{color:var(--bad);min-height:1.3em;margin:8px 0 4px;font-size:13px}
+.ask-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.ask.danger #askYes{background:var(--bad);color:#1a0d0b}
+@keyframes askIn{from{opacity:0}}@keyframes askPop{from{transform:scale(.94);opacity:0}}
+select{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;padding:9px 12px;outline:none;max-width:100%;min-width:0}
+select option{background:#1b1a18}
+input[type=text],input[type=password],input[type=number],input[type=search],input[type=url]{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:14px;padding:11px 14px;outline:none;min-width:0;transition:border-color .2s}
+input:focus{border-color:var(--acc)}
+.mut{color:var(--mut)}.small{font-size:13px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1}
+.hidden{display:none!important}
+
+/* layout */
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+aside{position:sticky;top:0;height:100vh;padding:26px 16px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--line);background:rgba(14,13,12,.5);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+.brand{display:flex;align-items:center;gap:12px;padding:0 10px 22px;font-weight:700;font-size:20px;letter-spacing:.2px}
+.logo{width:34px;height:34px;border-radius:11px;background:url(/icon-192.png) center/cover;box-shadow:0 6px 20px -8px rgba(227,164,88,.6)}
+.nav{justify-content:flex-start;border:0;background:transparent;width:100%;padding:12px 14px;border-radius:14px;color:var(--mut);font-weight:550}
+.nav .ic{width:1.35em;height:1.35em}
+.nav.on{background:rgba(255,255,255,.09);color:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.nav.on .ic{color:var(--acc)}
+.side-foot{margin-top:auto;padding:12px;border-radius:16px;background:var(--panel2);border:1px solid var(--line)}
+main{padding:32px clamp(16px,3vw,44px) 110px;max-width:1760px;width:100%}
+header.top{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+header.top h1{margin:0;font-size:clamp(24px,3.4vw,32px);letter-spacing:-.4px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:var(--panel);border:1px solid var(--line);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);font-size:14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 12px var(--ok)}
+.dot.off{background:var(--bad);box-shadow:0 0 12px var(--bad)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px;backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);box-shadow:0 20px 50px -30px rgba(0,0,0,.8)}
+section[data-panel]{display:flex;flex-direction:column;gap:var(--gap)}
+.stack{display:flex;flex-direction:column;gap:var(--gap);min-width:0}
+.card-head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.card-head>div:first-child{flex:1;min-width:200px}
+.card-head>.seg{flex:none}
+/* mando: [mando | teclas] y debajo abrir app; en pantallas anchas los ajustes del Fire TV van a la derecha */
+.remote-layout{display:grid;gap:var(--gap);align-items:start;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-areas:"remote side" "apps apps" "fire fire"}
+.remote-layout>.r-remote{grid-area:remote;display:flex;flex-direction:column;align-self:stretch}
+.remote-layout>.r-remote .remote-wrap{flex:1;align-content:center}
+.remote-layout>.stack{grid-area:side}
+.remote-layout>.r-apps{grid-area:apps}
+.remote-layout>.fire{grid-area:fire}
+/* contenido + columna lateral (Ajustes del Fire TV, Instalar apps) */
+.side-layout{display:grid;gap:var(--gap);grid-template-columns:minmax(0,1fr);align-items:start}
+.side-layout>.main-col{display:flex;flex-direction:column;gap:var(--gap);min-width:0}
+.side-layout>.side-col{display:flex;flex-direction:column;gap:var(--gap);min-width:0;order:-1}
+@media (min-width:1360px){
+  .side-layout{grid-template-columns:minmax(0,1fr) 330px}
+  .side-layout>.side-col{order:0;position:sticky;top:20px}
+  .side-col .fs{grid-template-columns:minmax(0,1fr)}
+}
+@media (min-width:1360px){
+  .remote-layout{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 300px;grid-template-areas:"remote side fire" "apps apps fire"}
+  .remote-layout>.fire .fs{grid-template-columns:minmax(0,1fr)}
+}
+/* instalar apps */
+.inst{margin-top:14px;padding:14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.inst b{display:block;font-size:14.5px}
+.inst .mut{font-size:12.5px}
+.inst .prog{margin-top:10px}
+.inst .mini{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.inst .mini button{padding:8px 12px}
+.inst.ok{border-color:rgba(120,200,140,.4)}
+.inst.err{border-color:rgba(242,120,100,.45)}
+.side-col .drop{padding:18px}
+.card-head .sub{margin:0}
+.masonry{columns:2 420px;column-gap:var(--gap)}
+.masonry>.card{break-inside:avoid;margin-bottom:var(--gap);display:block}
+.card h2{display:flex;align-items:center;gap:10px;margin:0 0 4px;font-size:17px}
+.card h2 .ic{color:var(--acc)}
+.card .sub{margin:0 0 18px;color:var(--mut);font-size:13.5px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:var(--gap);align-items:stretch}
+.remote-grid{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+.seg{display:inline-flex;padding:4px;border-radius:14px;background:rgba(0,0,0,.3);border:1px solid var(--line);gap:4px}
+.seg button{border:0;background:transparent;padding:8px 14px;border-radius:10px;color:var(--mut)}
+.seg button.on{background:var(--light);color:var(--ink);font-weight:600}
+
+/* mando */
+.remote-wrap{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center}
+.dpad{position:relative;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle at 50% 35%,rgba(255,255,255,.12),rgba(255,255,255,.03) 70%);border:1px solid var(--line2);box-shadow:inset 0 2px 20px rgba(255,255,255,.05),0 25px 50px -25px #000}
+.dpad button{position:absolute;border:0;background:transparent;border-radius:50%;width:70px;height:70px;font-size:22px;color:#ece8e1}
+.dpad button:hover{background:rgba(255,255,255,.08)}
+.dpad .u{top:6px;left:90px}.dpad .d{bottom:6px;left:90px}.dpad .l{left:6px;top:90px}.dpad .r{right:6px;top:90px}
+.dpad .ok{width:96px;height:96px;left:77px;top:77px;background:var(--light);color:var(--ink);font-weight:800;font-size:17px;box-shadow:0 12px 30px -10px rgba(0,0,0,.9)}
+.dpad .ok:hover{background:#fff}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.keys button{padding:14px 10px;flex-direction:column;gap:6px;font-size:12.5px;color:var(--mut)}
+.keys button .ic{width:1.6em;height:1.6em;color:#fff}
+.vol{display:flex;align-items:center;justify-content:space-between;padding:6px;border-radius:999px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.vol button{border-radius:999px;border:0;background:transparent;padding:12px 18px}
+.power{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.power button{padding:16px;font-weight:600}
+#shot{width:100%;border-radius:16px;margin-top:14px;border:1px solid var(--line)}
+.quick{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.qa{flex-direction:column;padding:10px;gap:8px;font-size:12.5px}
+.qa img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:#1b1a18}
+.qa{position:relative;min-width:0}
+.qa .lbl{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qa.dim img{opacity:.45;filter:grayscale(1)}
+.qa .add{position:absolute;top:4px;right:4px;width:30px;height:30px;padding:0;border-radius:10px;background:var(--light);color:var(--ink);border:0;box-shadow:0 6px 16px -6px #000}
+.qa .add .ic{width:18px;height:18px}
+.fs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.fs button{justify-content:flex-start;text-align:left;padding:14px;gap:14px;border-radius:16px;min-width:0}
+.fs .ic{width:26px;height:26px;color:var(--acc)}
+.fs .txt{flex:1;min-width:0}
+.fs b{display:block;font-weight:600;font-size:14px}
+.fs small{display:block;color:var(--mut);font-size:12px;line-height:1.35}
+.fs .go{width:16px;height:16px;color:var(--mut)}
+
+/* apps */
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid var(--line);transition:background .2s,box-shadow .2s}
+.item.dragging{background:var(--acc-soft);border-color:var(--acc);box-shadow:0 18px 40px -16px rgba(0,0,0,.8);position:relative;z-index:2}
+.mv:disabled{opacity:.25}
+.handle{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;color:var(--mut);padding:8px;border-radius:10px;display:inline-flex;flex:none}
+.handle:hover{background:rgba(255,255,255,.08);color:#fff}
+.handle .ic{width:22px;height:22px}
+.handle:active{cursor:grabbing}
+.item img{width:88px;height:50px;object-fit:cover;border-radius:10px;background:#1b1a18;flex:none}
+.item .name{flex:1;min-width:0}
+.item .name b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.item .name span{display:block;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acts{display:flex;gap:4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.appcard{position:relative;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.035);border:1px solid var(--line)}
+.appcard img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#1b1a18}
+.appcard.dim img{opacity:.35;filter:grayscale(1)}
+.appcard .meta{padding:10px 12px;display:flex;align-items:center;gap:6px}
+.appcard .meta b{flex:1;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appcard .meta button{padding:7px}
+.appcard .meta{flex-wrap:wrap}
+.appcard .meta b{flex:1 1 100%;margin:0 2px 2px}
+.appcard .meta button:first-of-type{margin-left:auto}
+.badge{position:absolute;top:8px;left:8px;font-size:11px;padding:3px 8px;border-radius:999px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px)}
+
+/* fondos */
+.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.slot{border-radius:18px;padding:14px;background:rgba(255,255,255,.035);border:1px solid var(--line)}
+.slot h3{margin:0 0 10px;font-size:14.5px;display:flex;align-items:center;gap:8px}
+.slot h3 .ic{color:var(--acc)}
+.slot h3 span{margin-left:auto;color:var(--mut);font-weight:500;font-size:12px}
+.mini{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mini img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.wp{position:relative;border-radius:16px;overflow:hidden;border:2px solid transparent;background:#1b1a18}
+.wp img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.wp.cur{border-color:var(--acc)}
+.wp .bar{position:absolute;inset:auto 0 0 0;padding:8px;display:flex;gap:4px;flex-wrap:wrap;background:linear-gradient(transparent,rgba(0,0,0,.8))}
+.tog{font-size:11px;padding:4px 7px;border-radius:8px;background:rgba(0,0,0,.45);border:1px solid var(--line)}
+.tog.on{background:var(--light);color:var(--ink);border-color:transparent;font-weight:650}
+.wp .tag{position:absolute;top:8px;left:8px}
+.wp .del{position:absolute;top:6px;right:6px;padding:6px;background:rgba(0,0,0,.55)}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;border:1.5px dashed var(--line2);border-radius:18px;padding:26px;text-align:center;color:var(--mut);transition:.2s}
+.drop:hover{border-color:var(--acc);color:#fff}
+.drop.over{border-color:var(--acc);background:var(--acc-soft);color:#fff}
+.credits{font-size:12.5px;color:var(--mut);columns:2 320px;column-gap:24px}
+.credits div{break-inside:avoid;margin-bottom:6px}
+.credits a{color:var(--acc);text-decoration:none}
+
+/* privacidad y sistema */
+.card-actions{display:flex;gap:8px;flex-wrap:wrap}
+.warn{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:rgba(242,166,90,.1);border:1px solid rgba(242,166,90,.35);color:#f6d2a8;font-size:13px;margin-bottom:14px}
+.warn code{background:rgba(0,0,0,.35);padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all}
+.tw{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.tw h4{grid-column:1/-1;margin:10px 0 0;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc)}
+.tw .item{min-width:0}
+.tw .item>.ic{width:22px;height:22px;color:var(--acc);flex:none}
+.tw .item .name span,.tw .item .name b{white-space:normal}
+.tw .state{font-size:12px;color:var(--mut);min-width:78px;text-align:right}
+.sw{position:relative;width:48px;height:28px;border-radius:999px;border:1px solid var(--line2);background:rgba(255,255,255,.08);padding:0;flex:none;transition:.2s}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#cfc9c0;transition:.2s}
+.sw.on{background:var(--acc);border-color:transparent}
+.sw.on::after{left:23px;background:var(--ink)}
+.sw:disabled{opacity:.4}
+.tag-manual{font-size:11px;padding:3px 8px;border-radius:8px;border:1px solid var(--line2);color:var(--mut)}
+
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:start}
+.col{display:flex;flex-direction:column;gap:var(--gap);min-width:0}
+.item.wide{flex-wrap:wrap}
+.item.wide .name{flex:1 1 160px}
+.item.wide .seg{flex:1 1 100%;display:flex}
+.item.wide .seg button{flex:1;padding-left:2px;padding-right:2px;white-space:nowrap}
+@media (max-width:520px){.item.wide .seg button{font-size:12.5px}}
+.pinf{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pinf input{letter-spacing:.3em}
+.pinf input::placeholder{letter-spacing:normal}
+.tw .item.manual{grid-column:1/-1}
+.remote-wrap>div{min-width:0}
+.keys{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (min-width:1360px) and (max-width:1760px){.remote-layout .dpad{transform:scale(.84);margin:-20px}.remote-layout .remote-wrap{gap:14px}}
+.cols .item .name b,.side-col .item .name b{white-space:normal}
+.side-col .pinf{grid-template-columns:minmax(0,1fr)}
+.tw .grp{display:block;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--acc);margin-bottom:2px}
+#pinGate .row{margin-top:4px}
+
+/* videos */
+.vadd{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:8px;margin-bottom:12px}
+.vlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:14px}
+.vlist .item img{width:96px;height:54px}
+.kind{font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--mut);margin-left:6px}
+.prog{height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:10px}
+.prog>div{height:100%;width:0;background:var(--acc);transition:width .2s}
+.wp .vbadge{position:absolute;top:8px;left:8px;display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 8px;border-radius:999px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px)}
+.wp .vbadge .ic{width:12px;height:12px}
+.wp.cur .vbadge{top:34px}
+
+/* login */
+#login{min-height:100vh;display:grid;place-items:center;padding:20px}
+#login .card{width:min(440px,100%);padding:30px}
+#login .logo{width:56px;height:56px;border-radius:18px;margin-bottom:16px}
+.pair{margin:4px 0 14px;padding:20px;border-radius:20px;background:rgba(0,0,0,.25);border:1px solid var(--line);text-align:center}
+.pair-code{font-size:40px;font-weight:750;letter-spacing:.18em;color:var(--acc);font-variant-numeric:tabular-nums;line-height:1.1;margin:2px 0 8px}
+.pair-code.wait{animation:pairPulse 1.6s ease-in-out infinite}
+@keyframes pairPulse{50%{opacity:.45}}
+.pair p{margin:0 0 12px;font-size:14px}
+.pair-steps{display:grid;gap:8px;text-align:left}
+.pair-steps div{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);font-size:14px}
+.pair-steps .ic{color:var(--acc);flex:none}
+.pair button{margin-top:12px}
+.linkish{background:none;border:0;padding:6px 0;color:var(--mut);font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.linkish:hover{background:none;color:var(--txt)}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;background:rgba(28,26,24,.94);border:1px solid var(--line2);padding:11px 18px;border-radius:14px;transition:.25s;pointer-events:none;z-index:50;backdrop-filter:var(--blur)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* móvil */
+main,.card,.grid2>*{min-width:0}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .grid2,.remote-grid{grid-template-columns:minmax(0,1fr)}
+  .remote-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"remote" "side" "apps" "fire"}
+  .masonry{columns:1}
+  .cols{grid-template-columns:minmax(0,1fr)}
+  .item{flex-wrap:wrap}
+  .item .acts{margin-left:auto}
+  .seg{flex-wrap:wrap}
+}
+@media (max-width:520px){
+  main{padding-left:12px;padding-right:12px}
+  :root{--gap:14px}
+  .fs{grid-template-columns:minmax(0,1fr)}
+  .tw{grid-template-columns:minmax(0,1fr)}
+  .vadd{grid-template-columns:minmax(0,1fr)}
+  .pinf{grid-template-columns:minmax(0,1fr)}
+  .item.wide-sm{flex-wrap:wrap}
+  .item.wide-sm .seg{width:100%}
+  .card{padding:18px;border-radius:20px}
+  .item{gap:10px;padding:8px}
+  .item img{width:64px;height:36px}
+  #pinned .item .acts{width:100%;justify-content:flex-end;border-top:1px solid var(--line);padding-top:6px}
+  #pinned .item .name{flex:1 1 120px}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .appcard .meta{padding:8px;gap:2px;flex-wrap:wrap}
+  .appcard .meta b{font-size:12.5px;flex:1 1 100%;margin:0 2px 4px}
+  .appcard .meta button:first-of-type{margin-left:auto}
+  .item .seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr))}
+  .gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .slots{grid-template-columns:minmax(0,1fr)}
+  .quick{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .item .seg{width:100%}
+  .item .seg button{flex:1}
+  #appWalls .item select{width:100%}
+  .dpad{transform:scale(.92)}
+  aside{position:fixed;inset:auto 10px calc(10px + env(safe-area-inset-bottom)) 10px;height:auto;flex-direction:row;justify-content:space-around;padding:6px;border:1px solid var(--line2);border-radius:22px;z-index:20;background:rgba(22,21,19,.8)}
+  .brand,.side-foot{display:none}
+  .nav{flex:1;width:auto;min-width:0;flex-direction:column;gap:3px;padding:9px 2px;font-size:11px;justify-content:center}
+  .nav span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  main{padding-top:18px}
+  header.top{flex-wrap:wrap;gap:8px}
+  header.top .grow{display:none}
+  header.top h1{width:100%}
+  #conn{display:none}
+  .chip{padding:7px 12px;font-size:13px}
+  .remote-wrap{grid-template-columns:1fr;justify-items:center}
+  .remote-wrap .keys,.remote-wrap .vol{width:100%}
+}
+</style>
+</head>
+<body>
+<div id="backdrop"></div>
+
+<section id="login" class="hidden">
+  <div class="card">
+    <div class="logo"></div>
+    <h2 style="font-size:24px;margin:0 0 6px" data-t="loginTitle"></h2>
+    <div id="pairBox" class="pair">
+      <div id="pairCode" class="pair-code wait">· · · ·</div>
+      <p id="pairMsg" class="mut"></p>
+      <div class="pair-steps">
+        <div><span class="ic" data-i="camera"></span><span data-t="pairPhone"></span></div>
+        <div><span class="ic" data-i="tv"></span><span data-t="pairPc"></span></div>
+      </div>
+      <button id="pairAgain" class="hidden"><span class="ic" data-i="refresh"></span><span data-t="pairAgain"></span></button>
+    </div>
+    <button id="useTok" class="linkish" data-t="useTok"></button>
+    <div id="tokBox" class="hidden">
+      <p class="mut small" data-t="loginHelp" style="margin:0 0 10px"></p>
+      <div class="row"><input id="tok" class="grow" type="password" autocomplete="off" data-ph="token"><button class="pri" id="go" data-t="enter"></button></div>
+    </div>
+    <div id="pinGate" class="hidden"><p class="mut small" data-t="pinAsk" style="margin:0 0 8px"></p>
+      <div class="row"><input id="pinIn" class="grow" type="password" inputmode="numeric" autocomplete="off" maxlength="8" data-ph="pinPh"><button class="pri" id="pinGo" data-t="enter"></button></div></div>
+    <p id="loginErr" class="small" style="color:var(--bad);min-height:1em"></p>
+  </div>
+</section>
+
+<div class="app hidden" id="appUi">
+  <aside>
+    <div class="brand"><div class="logo"></div>Aura</div>
+    <button class="nav on" data-tab="remote"></button>
+    <button class="nav" data-tab="apps"></button>
+    <button class="nav" data-tab="walls"></button>
+    <button class="nav" data-tab="prefs"></button>
+    <div class="side-foot small mut" id="sideInfo"></div>
+  </aside>
+
+  <main>
+    <header class="top">
+      <h1 id="title"></h1>
+      <span class="grow"></span>
+      <span class="chip" id="wchip"></span>
+      <span class="chip"><span class="dot" id="dot"></span><span id="conn"></span></span>
+    </header>
+
+    <!-- MANDO -->
+    <section data-panel="remote">
+      <div class="remote-layout">
+        <div class="card r-remote">
+          <h2><span class="ic" data-i="remote"></span><span data-t="remote"></span></h2>
+          <p class="sub" data-t="remoteSub"></p>
+          <div class="remote-wrap">
+            <div class="dpad">
+              <button class="u" data-k="up"><span class="ic" data-i="chevron-up"></span></button>
+              <button class="l" data-k="left"><span class="ic" data-i="chevron-left"></span></button>
+              <button class="ok" data-k="ok">OK</button>
+              <button class="r" data-k="right"><span class="ic" data-i="chevron-right"></span></button>
+              <button class="d" data-k="down"><span class="ic" data-i="chevron-down"></span></button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="keys">
+                <button data-k="back"><span class="ic" data-i="arrow-left"></span><span data-t="back"></span></button>
+                <button data-k="home"><span class="ic" data-i="home"></span><span data-t="home"></span></button>
+                <button data-k="playpause"><span class="ic" data-i="play"></span><span data-t="playpause"></span></button>
+                <button data-k="rewind"><span class="ic" data-i="rewind"></span><span data-t="rewind"></span></button>
+                <button data-k="previous"><span class="ic" data-i="skip-prev"></span><span data-t="previous"></span></button>
+                <button data-k="forward"><span class="ic" data-i="fast-forward"></span><span data-t="forward"></span></button>
+              </div>
+              <div class="vol">
+                <button data-k="voldown"><span class="ic" data-i="volume-low"></span></button>
+                <button data-k="mute"><span class="ic" data-i="volume-mute"></span></button>
+                <button data-k="volup"><span class="ic" data-i="volume-high"></span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h2><span class="ic" data-i="power"></span><span data-t="power"></span></h2>
+            <p class="sub" data-t="powerSub"></p>
+            <div class="power">
+              <button class="pri" data-power="on"><span class="ic" data-i="power"></span><span data-t="turnOn"></span></button>
+              <button data-power="off"><span class="ic" data-i="moon-stars"></span><span data-t="turnOff"></span></button>
+            </div>
+          </div>
+          <div class="card">
+            <h2><span class="ic" data-i="keyboard"></span><span data-t="type"></span></h2>
+            <p class="sub" data-t="typeSub"></p>
+            <div class="row"><input id="txt" class="grow" type="text" data-ph="typePh"><button class="pri" id="sendTxt"><span class="ic" data-i="check"></span></button></div>
+          </div>
+          <div class="card">
+            <h2><span class="ic" data-i="camera"></span><span data-t="screen"></span></h2>
+            <button id="shotBtn"><span class="ic" data-i="camera"></span><span data-t="capture"></span></button>
+            <img id="shot" class="hidden" alt="">
+          </div>
+        </div>
+      <div class="card r-apps">
+        <div class="card-head">
+          <div>
+            <h2><span class="ic" data-i="tv"></span><span data-t="openApp"></span></h2>
+            <p class="sub" id="quickSub"></p>
+          </div>
+          <div class="seg" id="quickSeg"><button data-v="fav" data-t="favorites"></button><button data-v="all" data-t="everything"></button></div>
+        </div>
+        <div class="quick" id="quick"></div>
+      </div>
+      <div class="card fire">
+        <h2><span class="ic" data-i="sliders"></span><span data-t="fireTitle"></span></h2>
+        <p class="sub" data-t="fireSub"></p>
+        <div class="fs"></div>
+      </div>
+      </div>
+    </section>
+
+    <!-- APPS -->
+    <section data-panel="apps" class="hidden">
+      <div class="side-layout">
+      <div class="main-col">
+      <div class="card">
+        <h2><span class="ic" data-i="star"></span><span data-t="mainRow"></span></h2>
+        <p class="sub" data-t="mainRowSub"></p>
+        <div class="list" id="pinned"></div>
+      </div>
+      <div class="card">
+        <h2><span class="ic" data-i="category"></span><span data-t="allApps"></span></h2>
+        <p class="sub" data-t="allAppsSub"></p>
+        <div class="row" style="margin-bottom:14px"><input id="appSearch" class="grow" type="search" data-ph="search"></div>
+        <div class="cards" id="others"></div>
+      </div>
+      </div>
+      <div class="side-col">
+        <div class="card">
+          <h2><span class="ic" data-i="download"></span><span data-t="instTitle"></span></h2>
+          <p class="sub" data-t="instSub"></p>
+          <label class="drop" id="apkDrop"><input id="apkUp" type="file" accept=".apk,application/vnd.android.package-archive" hidden><span class="ic" data-i="upload" style="width:26px;height:26px"></span><div data-t="apkDrop"></div><div class="small mut" data-t="apkLimit"></div></label>
+          <div class="row" style="margin-top:10px"><input id="apkUrl" class="grow" type="url" data-ph="apkUrlPh"><button class="pri" id="apkUrlGo" data-t="installGo"></button></div>
+          <div class="prog hidden" id="apkProg"><div></div></div>
+          <div id="instStatus" class="inst hidden"></div>
+        </div>
+        <div class="card">
+          <h2><span class="ic" data-i="search"></span><span data-t="storeTitle"></span></h2>
+          <p class="sub" data-t="storeSub"></p>
+          <div class="row"><input id="storeQ" class="grow" type="search" data-ph="storePh"><button id="storeGo"><span class="ic" data-i="search"></span></button></div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- FONDOS -->
+    <section data-panel="walls" class="hidden">
+      <div class="card">
+        <h2><span class="ic" data-i="clock"></span><span data-t="schedule"></span></h2>
+        <p class="sub" data-t="scheduleSub"></p>
+        <div class="row" style="margin-bottom:16px">
+          <div class="seg" id="modeSeg">
+            <button data-mode="app" data-t="modeApp"></button>
+            <button data-mode="time" data-t="modeTime"></button>
+            <button data-mode="rotate" data-t="modeRotate"></button>
+            <button data-mode="fixed" data-t="modeFixed"></button>
+          </div>
+          <label class="row small mut"><span data-t="every"></span><input id="rot" type="number" min="1" max="1440" style="width:80px"><span>min</span></label>
+        </div>
+        <div class="row small mut" style="margin-bottom:16px">
+          <label class="row"><span class="ic" data-i="sunrise"></span><span data-t="dayStarts"></span><input id="dayStart" type="number" min="0" max="23" style="width:70px"></label>
+          <label class="row"><span class="ic" data-i="sunset"></span><span data-t="nightStarts"></span><input id="nightStart" type="number" min="0" max="23" style="width:70px"></label>
+        </div>
+        <div class="slots" id="slots"></div>
+      </div>
+      <div class="card" id="appWallCard">
+        <h2><span class="ic" data-i="tv"></span><span data-t="perApp"></span></h2>
+        <p class="sub" data-t="perAppSub"></p>
+        <div class="list" id="appWalls"></div>
+      </div>
+      <div class="card">
+        <h2><span class="ic" data-i="film"></span><span data-t="videoTitle"></span></h2>
+        <p class="sub" data-t="videoSub"></p>
+        <div class="vadd"><input id="vUrl" type="url" data-ph="videoUrlPh"><input id="vName" type="text" data-ph="videoNamePh"><button class="pri" id="vAdd"><span class="ic" data-i="link"></span><span data-t="videoAdd"></span></button></div>
+        <label class="drop" id="vDrop"><input id="vUp" type="file" accept="video/*,.mkv" hidden><span class="ic" data-i="upload" style="width:28px;height:28px"></span><div data-t="videoDrop"></div><div class="small mut" data-t="videoLimit"></div></label>
+        <div class="prog hidden" id="vProg"><div></div></div>
+        <div class="vlist" id="videos"></div>
+      </div>
+      <div class="card">
+        <h2><span class="ic" data-i="image"></span><span data-t="gallery"></span></h2>
+        <p class="sub" data-t="gallerySub"></p>
+        <label class="drop" id="drop"><input id="up" type="file" accept="image/*" multiple hidden><span class="ic" data-i="upload" style="width:28px;height:28px"></span><div data-t="dropHere"></div></label>
+        <div class="gallery" id="gallery" style="margin-top:16px"></div>
+      </div>
+      <div class="card">
+        <h2><span class="ic" data-i="information"></span><span data-t="credits"></span></h2>
+        <div class="credits" id="credits"></div>
+      </div>
+    </section>
+
+    <!-- AJUSTES -->
+    <section data-panel="prefs" class="hidden">
+      <div class="side-layout">
+      <div class="main-col">
+      <div class="card">
+        <div class="card-head">
+          <div><h2><span class="ic" data-i="shield-check"></span><span data-t="privTitle"></span></h2><p class="sub" data-t="privSub"></p></div>
+          <div class="card-actions"><button class="pri" id="twAll"><span class="ic" data-i="broom"></span><span data-t="privAll"></span></button><button id="twWelcome"><span class="ic" data-i="sparkles"></span><span data-t="privWelcome"></span></button></div>
+        </div>
+        <div class="warn hidden" id="permWarn"><span class="ic" data-i="information"></span><div><b data-t="permTitle"></b><div data-t="permBody"></div><code>adb shell pm grant com.david.aura android.permission.WRITE_SECURE_SETTINGS</code></div></div>
+        <div class="tw" id="tweaks"></div>
+      </div>
+      <div class="cols">
+        <div class="col">
+          <div class="card">
+          <h2><span class="ic" data-i="moon-sleep"></span><span data-t="saverTitle"></span></h2>
+          <p class="sub" data-t="saverSub"></p>
+          <div class="warn hidden" id="saverNote"><span class="ic" data-i="information"></span><div data-t="saverInactive"></div></div>
+          <div class="list">
+            <div class="item"><span class="ic" data-i="moon-sleep"></span><div class="name"><b data-t="saverUse"></b></div>
+              <div class="seg" data-bool="screensaverEnabled"><button data-v="0" data-t="no"></button><button data-v="1" data-t="yes"></button></div></div>
+            <div class="item wide"><span class="ic" data-i="clock"></span><div class="name"><b data-t="saverStart"></b><span data-t="saverStartSub"></span></div>
+              <div class="seg" id="saverSeg"><button data-v="1">1</button><button data-v="2">2</button><button data-v="5">5</button><button data-v="10">10</button><button data-v="15">15</button><button data-v="30">30</button><button data-v="60">60</button></div></div>
+            <div class="item wide"><span class="ic" data-i="power"></span><div class="name"><b data-t="screenOff"></b><span data-t="screenOffSub"></span></div>
+              <div class="seg" id="offSeg"><button data-v="0" data-t="never"></button><button data-v="30">30 min</button><button data-v="60">1 h</button><button data-v="120">2 h</button><button data-v="240">4 h</button><button data-v="480">8 h</button></div></div>
+          </div>
+          <button id="saverPreview" style="margin-top:14px"><span class="ic" data-i="eye"></span><span data-t="saverPreview"></span></button>
+        </div>
+          <div class="card">
+          <h2><span class="ic" data-i="settings"></span><span data-t="general"></span></h2>
+          <p class="sub" data-t="generalSub"></p>
+          <div class="list">
+            <div class="item"><span class="ic" data-i="globe"></span><div class="name"><b data-t="language"></b></div>
+              <div class="seg" id="langSeg"><button data-v="es">Español</button><button data-v="en">English</button></div></div>
+            <div class="item"><span class="ic" data-i="thermometer"></span><div class="name"><b data-t="temperature"></b></div>
+              <div class="seg" id="unitSeg"><button data-v="C">°C</button><button data-v="F">°F</button></div></div>
+            <div class="item"><span class="ic" data-i="clock"></span><div class="name"><b data-t="clock"></b></div>
+              <div class="seg" id="clockSeg"><button data-v="12">12 h · AM/PM</button><button data-v="24">24 h</button></div></div>
+            <div class="item"><span class="ic" data-i="grid"></span><div class="name"><b data-t="extraRow"></b><span data-t="extraRowSub"></span></div>
+              <div class="seg" id="rowSeg"><button data-v="0" data-t="no"></button><button data-v="1" data-t="yes"></button></div></div>
+            <div class="item"><span class="ic" data-i="tv"></span><div class="name"><b data-t="launcherUse"></b><span data-t="launcherSub"></span></div>
+            <div class="seg" data-bool="launcherEnabled"><button data-v="0" data-t="no"></button><button data-v="1" data-t="yes"></button></div></div>
+          </div>
+        </div>
+        </div>
+        <div class="col">
+          <div class="card">
+          <h2><span class="ic" data-i="palette"></span><span data-t="appearance"></span></h2>
+          <p class="sub" data-t="appearanceSub"></p>
+          <div class="list">
+            <div class="item wide-sm"><span class="ic" data-i="text"></span><div class="name"><b data-t="font"></b></div>
+              <div class="seg" id="fontSeg"><button data-v="sans">Sans</button><button data-v="condensed" data-t="condensed"></button><button data-v="serif" style="font-family:serif">Serif</button><button data-v="mono" style="font-family:monospace">Mono</button></div></div>
+            <div class="item"><span class="ic" data-i="clock"></span><div class="name"><b data-t="clockSize"></b></div>
+              <div class="seg" id="clockSizeSeg"><button data-v="s">S</button><button data-v="m">M</button><button data-v="l">L</button><button data-v="xl">XL</button></div></div>
+            <div class="item"><span class="ic" data-i="text"></span><div class="name"><b data-t="dateSize"></b></div>
+              <div class="seg" id="dateSizeSeg"><button data-v="s">S</button><button data-v="m">M</button><button data-v="l">L</button><button data-v="xl">XL</button></div></div>
+            <div class="item"><span class="ic" data-i="layout"></span><div class="name"><b data-t="tileSize"></b></div>
+              <div class="seg" id="tileSizeSeg"><button data-v="s">S</button><button data-v="m">M</button><button data-v="l">L</button></div></div>
+            <div class="item"><span class="ic" data-i="eye"></span><div class="name"><b data-t="showGreeting"></b></div>
+              <div class="seg" data-bool="showGreeting"><button data-v="0" data-t="no"></button><button data-v="1" data-t="yes"></button></div></div>
+            <div class="item"><span class="ic" data-i="eye"></span><div class="name"><b data-t="showDate"></b></div>
+              <div class="seg" data-bool="showDate"><button data-v="0" data-t="no"></button><button data-v="1" data-t="yes"></button></div></div>
+            <div class="item"><span class="ic" data-i="eye"></span><div class="name"><b data-t="showWeather"></b></div>
+              <div class="seg" data-bool="showWeather"><button data-v="0" data-t="no"></button><button data-v="1" data-t="yes"></button></div></div>
+          </div>
+        </div>
+          <div class="card">
+          <h2><span class="ic" data-i="cloud-sun"></span><span data-t="weather"></span></h2>
+          <p class="sub" id="curPlace"></p>
+          <div class="row"><input id="city" class="grow" type="search" data-ph="cityPh"><button id="citySearch"><span class="ic" data-i="search"></span></button></div>
+          <div id="cities" class="list" style="margin-top:10px"></div>
+        </div>
+        </div>
+      </div>
+      </div>
+      <div class="side-col">
+      <div class="card">
+        <h2><span class="ic" data-i="sliders"></span><span data-t="fireTitle"></span></h2>
+        <p class="sub" data-t="fireSub"></p>
+        <div class="fs"></div>
+      </div>
+          <div class="card" id="secCard">
+          <h2><span class="ic" data-i="shield"></span><span data-t="secTitle"></span></h2>
+          <p class="sub" id="secSub"></p>
+          <div class="pinf">
+            <input id="pinCur" type="password" inputmode="numeric" autocomplete="off" maxlength="8" data-ph="pinCurPh">
+            <input id="pinNew" type="password" inputmode="numeric" autocomplete="off" maxlength="8" data-ph="pinNewPh">
+          </div>
+          <div class="card-actions" style="margin-top:10px"><button class="pri" id="pinSet"><span class="ic" data-i="shield-check"></span><span id="pinSetLbl"></span></button><button class="danger hidden" id="pinOff"><span data-t="pinDisable"></span></button></div>
+        </div>
+          <div class="card">
+          <h2><span class="ic" data-i="download"></span><span data-t="device"></span></h2>
+          <p class="sub" id="installHelp"></p>
+          <div class="card-actions"><button class="pri hidden" id="installBtn"><span class="ic" data-i="download"></span><span data-t="installBtn"></span></button><button class="danger" id="logout"><span class="ic" data-i="logout"></span><span data-t="logout"></span></button></div>
+        </div>
+      </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="toast"></div>
+<div id="ask" class="ask hidden" role="dialog" aria-modal="true" aria-labelledby="askTitle"><div class="ask-card">
+  <div class="ask-ic"><span class="ic" id="askIc"></span></div>
+  <h3 id="askTitle"></h3><p id="askText" class="mut"></p>
+  <div id="askPinRow" class="hidden"><input id="askPin" type="password" inputmode="numeric" autocomplete="off" maxlength="8"></div>
+  <div id="askErr" class="err"></div>
+  <div class="ask-btns"><button id="askNo"></button><button id="askYes" class="pri"></button></div>
+</div></div>
+
+<script>
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const ICON=n=>(window.ICONS&&ICONS[n])||'';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const T={
+ es:{loginTitle:'Conecta con tu TV',loginHelp:'En la TV pulsa el botón Menú (☰) del mando para ver el token de acceso.',pairLook:'Mira la TV: aparece un código QR y este código.',pairPhone:'Móvil: escanea el QR de la TV con la cámara',pairPc:'Ordenador: comprueba el código y pulsa Permitir en la TV',pairDenied:'Se rechazó en la TV.',pairExpired:'Se acabó el tiempo.',pairAgain:'Mostrar otra vez en la TV',useTok:'Entrar con el token de acceso',token:'Token de acceso',enter:'Entrar',
+  remote:'Mando',apps:'Apps',walls:'Fondos',prefs:'Ajustes',remoteSub:'Navega y controla la TV desde aquí.',back:'Atrás',home:'Inicio',playpause:'Pausa',rewind:'Retroceder',previous:'Anterior',forward:'Avanzar',
+  power:'Encendido',powerSub:'Con HDMI-CEC activo, la tele también se enciende y se apaga.',turnOn:'Encender',turnOff:'Apagar',type:'Escribir',typeSub:'Escribe en el buscador que esté abierto en la TV.',typePh:'Buscar película, serie…',
+  screen:'Pantalla',capture:'Ver captura',openApp:'Abrir app',openAppSub:'Tus apps favoritas, a un toque.',openAllSub:'Todas las apps del Fire TV. Con + la añades a la fila principal.',favorites:'Favoritas',everything:'Todas',
+  fireTitle:'Ajustes del Fire TV',fireSub:'Se abren en la TV y te mueves con el mando. Si cambias de Wi-Fi, conecta el móvil o el PC a la misma red y vuelve a escanear el QR (la IP puede cambiar).',fsOpened:'Abierto en la TV',
+  mainRow:'Fila principal',mainRowSub:'Arrastra desde ☰ para ordenar. Así aparecen en la TV.',allApps:'Todas las apps',allAppsSub:'Añade apps a la fila principal u ocúltalas de la TV.',search:'Buscar app…',
+  schedule:'Fondos según el horario',scheduleSub:'Cada franja rota entre sus fondos. Marca o desmarca fondos en la galería.',modeTime:'Según la hora',modeRotate:'Rotar todos',modeFixed:'Fijo',every:'Cambiar cada',dayStarts:'Día desde las',nightStarts:'Noche desde las',
+  morning:'Mañana',afternoon:'Tarde',evening:'Atardecer',night:'Noche',gallery:'Galería',gallerySub:'Toca las etiquetas para asignar cada fondo a una franja.',dropHere:'Arrastra imágenes aquí o toca para subir',credits:'Créditos de las fotos',
+  general:'General',generalSub:'Se aplica a la TV y a este panel.',language:'Idioma',temperature:'Temperatura',clock:'Reloj',extraRow:'Segunda fila',extraRowSub:'Muestra el resto de apps bajo la fila principal',yes:'Sí',no:'No',
+  weather:'Clima',cityPh:'Busca tu ciudad…',noPlace:'Sin ubicación: el clima no se muestra.',install:'Instalar como app',installBtn:'Instalar Aura',
+  installIos:'En iPhone/iPad: botón Compartir → “Añadir a pantalla de inicio”.',installHttp:'En Android: menú ⋮ de Chrome → “Añadir a pantalla de inicio”. La TV usa http en tu red local, por eso Chrome lo añade como acceso directo.',installReady:'Instálala para abrirla como una app más.',
+  session:'Sesión',sessionSub:'Olvida el token en este dispositivo.',logout:'Cerrar sesión',connected:'Conectado',offline:'Sin conexión',
+  saved:'Guardado',order:'Orden guardado',added:'Añadida a la fila principal',removed:'Quitada de la fila principal',hiddenT:'Oculta en la TV',shown:'Visible en la TV',iconOk:'Icono cambiado',iconReset:'Icono original',uploaded:'Fondos subidos',deleted:'Fondo borrado',confirmDel:'¿Borrar este fondo?',
+  sent:'Enviado',noField:'No hay ningún campo de texto activo en la TV',keyFail:'Esta app no acepta esa tecla desde la web',opening:'Abriendo…',on:'Encendiendo…',off:'Apagando…',fixedSet:'Fondo fijado',now:'Ahora',fix:'Fijar',
+  pin:'Añadir',unpin:'Quitar',hide:'Ocultar',show:'Mostrar',icon:'Icono',open:'Abrir',inRow:'En la fila',hiddenBadge:'Oculta',locationSaved:'Ubicación guardada',noResults:'Sin resultados',wallpapers:'fondos',badToken:'Token incorrecto',
+  modeApp:'Según la app',perApp:'Fondo de cada app',perAppSub:'En modo “Según la app”, cada app usa un fondo de la franja horaria actual. Aquí puedes fijar uno concreto.',auto:'Automático (según la hora)',
+  appearance:'Apariencia',appearanceSub:'Cómo se ve la pantalla de inicio de la TV.',font:'Tipo de letra',condensed:'Condensada',clockSize:'Tamaño del reloj',dateSize:'Tamaño de la fecha',tileSize:'Tamaño de las apps',showGreeting:'Mostrar saludo',showDate:'Mostrar fecha',showWeather:'Mostrar clima',
+  instTitle:'Instalar apps',instSub:'Sube un APK o pega un enlace directo. La TV te pide confirmar la instalación: acéptala con el mando o con los botones de aquí.',
+  apkDrop:'Arrastra un APK aquí o toca para subirlo',apkLimit:'Archivo .apk · máx. 300 MB',apkUrlPh:'https://…/app.apk',installGo:'Instalar',apkOnly:'Solo archivos .apk',apkTooBig:'El APK pasa de 300 MB',
+  storeTitle:'Appstore de Amazon',storeSub:'Busca una app y se abre la tienda en la TV para instalarla.',storePh:'Nombre de la app…',storeOpened:'Appstore abierta en la TV',
+  uninstall:'Desinstalar',cancel:'Cancelar',delete:'Borrar',askUninstT:'¿Desinstalar {app}?',askUninstX:'Se borrará del Fire TV con todos sus datos. No se puede deshacer.',askInstT:'¿Instalar {app}?',askInstX:'Aura la instalará y aceptará la confirmación en la TV.',askLaunchT:'¿Desactivar Aura?',askLaunchX:'El botón Inicio volverá a abrir el inicio de Amazon.',askLaunchY:'Desactivar',askPinPh:'Código de seguridad',
+  ph_downloading:'Descargando…',ph_installing:'Preparando la instalación…',ph_confirm:'Aceptando en la TV…',ph_done:'Instalada',ph_failed:'No se completó',ph_uninstall_confirm:'Desinstalando…',ph_uninstalled:'Desinstalada',ph_idle:'',
+  device:'Este dispositivo',secTitle:'Seguridad',secOff:'Sin código: cualquiera que escanee el QR puede controlar la TV. Pon un código de 4 a 8 cifras y se pedirá al entrar desde cada móvil o PC.',
+  secOn:'Código activado: se pide al entrar desde un dispositivo nuevo y para quitarlo. Si lo olvidas, quítalo en la TV (Ajustes › Código de seguridad).',
+  pinCurPh:'Código actual',pinNewPh:'Código nuevo (4-8 cifras)',pinPh:'Código (4-8 cifras)',pinEnable:'Activar código',pinChange:'Cambiar código',pinDisable:'Quitar código',
+  pinAsk:'Esta TV tiene código de seguridad. Escríbelo para entrar.',pinBad:'Código incorrecto. Te quedan {n} intentos.',pinLocked:'Demasiados intentos. Espera {s} s.',pinFormat:'El código debe tener de 4 a 8 cifras',
+  pinEnabled:'Código activado',pinChanged:'Código cambiado',pinDisabled:'Código quitado',pinNeedCur:'Escribe el código actual',
+  privTitle:'Privacidad y sistema',privSub:'Lo que desactivó la bienvenida. Cada interruptor muestra si esa función de Amazon está encendida; tócalo para reactivarla o volver a apagarla.',privAll:'Desactivar todo',privWelcome:'Repetir bienvenida en la TV',
+  permTitle:'Falta el permiso del sistema',permBody:'Ejecuta deploy.ps1 una vez desde el PC, o este comando con ADB:',stOn:'Activado',stOff:'Desactivado',manual:'Manual',privDone:'Ajustes desactivados',welcomeShown:'Bienvenida abierta en la TV',
+  saverTitle:'Salvapantallas',saverSub:'Hora, fecha y clima sobre tus fondos (si el fondo fijo es un vídeo, se reproduce). La pantalla no se apaga salvo que lo elijas aquí.',saverInactive:'Ahora mismo manda el salvapantallas de Amazon. Desactívalo en “Privacidad y sistema” para usar el de Aura.',
+  saverUse:'Salvapantallas de Aura',saverStart:'Empieza tras (min)',saverStartSub:'Minutos sin tocar el mando',screenOff:'Apagar la pantalla',screenOffSub:'Tiempo con el salvapantallas antes de dormir la TV',never:'Nunca',saverPreview:'Ver en la TV',saverShown:'Salvapantallas en la TV',
+  videoTitle:'Fondos de vídeo',videoSub:'Pega un enlace de YouTube o de un vídeo (mp4, webm, m3u8), o sube el tuyo. Se reproducen sin sonido y en bucle; aparecen en la galería para asignarlos como cualquier fondo.',
+  videoUrlPh:'https://youtube.com/watch?v=… o https://…/video.mp4',videoNamePh:'Nombre (opcional)',videoAdd:'Añadir',videoDrop:'Arrastra un vídeo aquí o toca para subirlo',videoLimit:'mp4, webm, mkv o mov · máx. 300 MB',
+  videoAdded:'Vídeo añadido',videoBad:'Vídeo no válido',videoTooBig:'El vídeo pasa de 300 MB',noVideos:'Aún no hay vídeos.',video:'Vídeo',kind_youtube:'YouTube',kind_url:'Enlace',kind_file:'Archivo subido',
+  launcherTitle:'Launcher',launcherSub:'Si lo desactivas, el botón Inicio vuelve a abrir el inicio de Amazon. Aura sigue instalada y la web sigue funcionando.',launcherUse:'Usar Aura como inicio',launcherOn:'Activo',launcherOff:'Desactivado'},
+ en:{loginTitle:'Connect to your TV',loginHelp:'On the TV, press the Menu (☰) button on the remote to see the access token.',pairLook:'Look at the TV: a QR code and this code appear.',pairPhone:'Phone: scan the QR on the TV with the camera',pairPc:'Computer: check the code and press Allow on the TV',pairDenied:'It was denied on the TV.',pairExpired:'Time ran out.',pairAgain:'Show it again on the TV',useTok:'Sign in with the access token',token:'Access token',enter:'Sign in',
+  remote:'Remote',apps:'Apps',walls:'Wallpapers',prefs:'Settings',remoteSub:'Navigate and control the TV from here.',back:'Back',home:'Home',playpause:'Pause',rewind:'Rewind',previous:'Previous',forward:'Forward',
+  power:'Power',powerSub:'With HDMI-CEC on, the TV set turns on and off too.',turnOn:'Turn on',turnOff:'Turn off',type:'Type',typeSub:'Type into the search box open on the TV.',typePh:'Search movies, shows…',
+  screen:'Screen',capture:'Take screenshot',openApp:'Open app',openAppSub:'Your favorite apps, one tap away.',openAllSub:'Every app on the Fire TV. Tap + to add it to the main row.',favorites:'Favorites',everything:'All',
+  fireTitle:'Fire TV settings',fireSub:'They open on the TV and you move around with the remote. If you switch Wi-Fi, join your phone or PC to the same network and scan the QR again (the IP may change).',fsOpened:'Opened on the TV',
+  mainRow:'Main row',mainRowSub:'Drag from ☰ to reorder. This is the order on the TV.',allApps:'All apps',allAppsSub:'Add apps to the main row or hide them from the TV.',search:'Search apps…',
+  schedule:'Wallpapers by time of day',scheduleSub:'Each period rotates through its wallpapers. Tag wallpapers in the gallery.',modeTime:'Time of day',modeRotate:'Rotate all',modeFixed:'Fixed',every:'Change every',dayStarts:'Day starts at',nightStarts:'Night starts at',
+  morning:'Morning',afternoon:'Afternoon',evening:'Evening',night:'Night',gallery:'Gallery',gallerySub:'Tap the tags to assign each wallpaper to a period.',dropHere:'Drop images here or tap to upload',credits:'Photo credits',
+  general:'General',generalSub:'Applies to the TV and this panel.',language:'Language',temperature:'Temperature',clock:'Clock',extraRow:'Second row',extraRowSub:'Show the rest of your apps under the main row',yes:'Yes',no:'No',
+  weather:'Weather',cityPh:'Search your city…',noPlace:'No location: weather is hidden.',install:'Install as an app',installBtn:'Install Aura',
+  installIos:'On iPhone/iPad: Share button → “Add to Home Screen”.',installHttp:'On Android: Chrome ⋮ menu → “Add to Home screen”. The TV uses http on your local network, so Chrome adds it as a shortcut.',installReady:'Install it to open it like any other app.',
+  session:'Session',sessionSub:'Forget the token on this device.',logout:'Sign out',connected:'Connected',offline:'Offline',
+  saved:'Saved',order:'Order saved',added:'Added to the main row',removed:'Removed from the main row',hiddenT:'Hidden on the TV',shown:'Visible on the TV',iconOk:'Icon updated',iconReset:'Original icon',uploaded:'Wallpapers uploaded',deleted:'Wallpaper deleted',confirmDel:'Delete this wallpaper?',
+  sent:'Sent',noField:'No text field is active on the TV',keyFail:'This app ignores that key from the web',opening:'Opening…',on:'Turning on…',off:'Turning off…',fixedSet:'Wallpaper pinned',now:'Now',fix:'Pin',
+  pin:'Add',unpin:'Remove',hide:'Hide',show:'Show',icon:'Icon',open:'Open',inRow:'In row',hiddenBadge:'Hidden',locationSaved:'Location saved',noResults:'No results',wallpapers:'wallpapers',badToken:'Wrong token',
+  modeApp:'Follows the app',perApp:'Wallpaper per app',perAppSub:'In “Follows the app” mode, each app uses a wallpaper from the current time of day. Pin a specific one here.',auto:'Automatic (time of day)',
+  appearance:'Appearance',appearanceSub:'How the TV home screen looks.',font:'Font',condensed:'Condensed',clockSize:'Clock size',dateSize:'Date size',tileSize:'App size',showGreeting:'Show greeting',showDate:'Show date',showWeather:'Show weather',
+  instTitle:'Install apps',instSub:'Upload an APK or paste a direct link. The TV asks you to confirm the install: accept it with the remote or the buttons here.',
+  apkDrop:'Drop an APK here or tap to upload',apkLimit:'.apk file · max 300 MB',apkUrlPh:'https://…/app.apk',installGo:'Install',apkOnly:'Only .apk files',apkTooBig:'The APK is over 300 MB',
+  storeTitle:'Amazon Appstore',storeSub:'Search for an app and the store opens on the TV so you can install it.',storePh:'App name…',storeOpened:'Appstore opened on the TV',
+  uninstall:'Uninstall',cancel:'Cancel',delete:'Delete',askUninstT:'Uninstall {app}?',askUninstX:'It will be removed from the Fire TV with all its data. This can’t be undone.',askInstT:'Install {app}?',askInstX:'Aura will install it and accept the confirmation on the TV.',askLaunchT:'Turn off Aura?',askLaunchX:'The Home button will open the Amazon home screen again.',askLaunchY:'Turn off',askPinPh:'Security code',
+  ph_downloading:'Downloading…',ph_installing:'Preparing the install…',ph_confirm:'Accepting on the TV…',ph_done:'Installed',ph_failed:'Not completed',ph_uninstall_confirm:'Uninstalling…',ph_uninstalled:'Uninstalled',ph_idle:'',
+  device:'This device',secTitle:'Security',secOff:'No code: anyone who scans the QR can control the TV. Set a 4–8 digit code and it will be asked on every new phone or PC.',
+  secOn:'Code on: it is asked when signing in from a new device and to remove it. If you forget it, remove it on the TV (Settings › Security code).',
+  pinCurPh:'Current code',pinNewPh:'New code (4–8 digits)',pinPh:'Code (4–8 digits)',pinEnable:'Turn on code',pinChange:'Change code',pinDisable:'Remove code',
+  pinAsk:'This TV has a security code. Enter it to continue.',pinBad:'Wrong code. {n} attempts left.',pinLocked:'Too many attempts. Wait {s} s.',pinFormat:'The code must have 4 to 8 digits',
+  pinEnabled:'Code turned on',pinChanged:'Code changed',pinDisabled:'Code removed',pinNeedCur:'Enter the current code',
+  privTitle:'Privacy & system',privSub:'What the welcome screen turned off. Each switch shows whether that Amazon feature is on; tap it to turn it back on or off again.',privAll:'Turn everything off',privWelcome:'Show welcome on the TV',
+  permTitle:'System permission missing',permBody:'Run deploy.ps1 once from the PC, or this ADB command:',stOn:'On',stOff:'Off',manual:'Manual',privDone:'Settings turned off',welcomeShown:'Welcome opened on the TV',
+  saverTitle:'Screensaver',saverSub:'Time, date and weather over your wallpapers (a pinned video wallpaper plays too). The screen stays on unless you choose otherwise here.',saverInactive:"Amazon's screensaver is in charge right now. Turn it off under “Privacy & system” to use Aura's.",
+  saverUse:'Aura screensaver',saverStart:'Start after (min)',saverStartSub:'Minutes without touching the remote',screenOff:'Turn off the screen',screenOffSub:'Time on the screensaver before the TV sleeps',never:'Never',saverPreview:'Show on the TV',saverShown:'Screensaver on the TV',
+  videoTitle:'Video wallpapers',videoSub:'Paste a YouTube or video link (mp4, webm, m3u8), or upload your own. They play muted and looped, and show up in the gallery so you can assign them like any wallpaper.',
+  videoUrlPh:'https://youtube.com/watch?v=… or https://…/video.mp4',videoNamePh:'Name (optional)',videoAdd:'Add',videoDrop:'Drop a video here or tap to upload',videoLimit:'mp4, webm, mkv or mov · max 300 MB',
+  videoAdded:'Video added',videoBad:'Invalid video',videoTooBig:'The video is over 300 MB',noVideos:'No videos yet.',video:'Video',kind_youtube:'YouTube',kind_url:'Link',kind_file:'Uploaded file',
+  launcherTitle:'Launcher',launcherSub:'If you turn it off, the Home button opens the Amazon home screen again. Aura stays installed and the web keeps working.',launcherUse:'Use Aura as home screen',launcherOn:'Active',launcherOff:'Off'}
+};
+let LANG=(navigator.language||'es').startsWith('en')?'en':'es';
+const t=k=>(T[LANG]&&T[LANG][k])||T.es[k]||k;
+
+// Enlace directo: http://IP:8765/#token=XXXX guarda el token y lo quita de la barra de direcciones
+const hashParams=new URLSearchParams(location.hash.slice(1));
+const hashTok=hashParams.get('token'), hashTab=hashParams.get('tab');
+if(hashTok){try{localStorage.setItem('auraToken',hashTok)}catch(e){}history.replaceState(null,'',location.pathname+(hashTab?'#tab='+hashTab:''))}
+let TOKEN=hashTok||localStorage.getItem('auraToken')||'';
+let SESSION='';try{SESSION=localStorage.getItem('auraSession')||''}catch(e){}
+let S=null, TAB='remote', CREDITS=null, appQuery='', QMODE='fav';
+try{QMODE=localStorage.getItem('auraQuick')==='all'?'all':'fav'}catch(e){}
+const TW_ICON={device_usage:'chart',app_usage:'eye-off',interest_ads:'ban',ad_dns:'shield-check',data_monitoring:'data',dnd:'bell-off',video_autoplay:'video',audio_autoplay:'volume-cross',screensaver:'moon-sleep',nav_sounds:'soundwave'};
+const FS_ICON={network:'wifi',display:'display',apps:'grid',controllers:'gamepad',preferences:'sliders',accessibility:'accessibility',device:'information',all:'settings'};
+
+function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(e._h);e._h=setTimeout(()=>e.classList.remove('show'),1900)}
+function q(path,params){return path+'?'+new URLSearchParams({...params,token:TOKEN,...(SESSION?{session:SESSION}:{})})}
+async function api(path,{method='GET',body,form,pin}={}){
+  const o={method,headers:{'X-Token':TOKEN,...(SESSION?{'X-Session':SESSION}:{}),...(pin?{'X-Pin':pin}:{})}};
+  if(form)o.body=form;else if(body!==undefined){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}
+  let r;try{r=await fetch(path,o)}catch(e){setConn(false);throw new Error(t('offline'))}
+  setConn(true);
+  if(r.status===401){let e={};try{e=await r.clone().json()}catch(x){}
+    if(e.error==='pin_required'){setSession('');pinGate(true);throw new Error(t('pinAsk'))}
+    logout();throw new Error(t('badToken'))}
+  const d=(r.headers.get('content-type')||'').includes('json')?await r.json():await r.blob();
+  if(!r.ok){const err=new Error(d.error||r.status);err.data=d;throw err}return d;
+}
+function setConn(ok){$('#dot').classList.toggle('off',!ok);$('#conn').textContent=ok?t('connected'):t('offline')}
+
+/* ---------- i18n + iconos estáticos ---------- */
+function applyStatic(){
+  document.documentElement.lang=LANG;
+  $$('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
+  $$('[data-ph]').forEach(e=>e.placeholder=t(e.dataset.ph));
+  $$('[data-i]').forEach(e=>e.innerHTML=ICON(e.dataset.i));
+  const navIcon={remote:'remote',apps:'grid',walls:'wallpaper',prefs:'settings'};
+  $$('.nav').forEach(b=>b.innerHTML=`<span class="ic">${ICON(navIcon[b.dataset.tab])}</span><span>${t(b.dataset.tab)}</span>`);
+  $('#title').textContent=t(TAB);
+}
+
+/* ---------- sesión ---------- */
+async function login(){TOKEN=$('#tok').value.replace(/\s+/g,'');try{await load();localStorage.setItem('auraToken',TOKEN);show(true)}catch(e){$('#loginErr').textContent=e.message}}
+function logout(){localStorage.removeItem('auraToken');TOKEN='';setSession('');pinGate(false);show(false)}
+function setSession(v){SESSION=v||'';try{v?localStorage.setItem('auraSession',v):localStorage.removeItem('auraSession')}catch(e){}}
+// Pide el codigo de seguridad (el token ya lo tenemos por el QR o el campo)
+function pinGate(on){const p=on&&!!TOKEN;$('#pinGate').classList.toggle('hidden',!on);['#pairBox','#useTok'].forEach(x=>$(x).classList.toggle('hidden',p));if(p){$('#tokBox').classList.add('hidden');pairStop()}if(on){show(false);setTimeout(()=>$('#pinIn').focus(),50)}}
+function pinError(r){return r.error==='locked'?t('pinLocked').replace('{s}',r.seconds):r.error==='bad_pin'?t('pinBad').replace('{n}',r.left):r.error==='bad_format'?t('pinFormat'):(r.error||'—')}
+async function pinLogin(){
+  const pin=$('#pinIn').value.trim();if(!pin)return;
+  try{const r=await (await fetch('/api/login',{method:'POST',headers:{'X-Token':TOKEN,'Content-Type':'application/json'},body:JSON.stringify({pin})})).json();
+    if(!r.ok){$('#loginErr').textContent=pinError(r);return}
+    setSession(r.session);$('#pinIn').value='';$('#loginErr').textContent='';await load();localStorage.setItem('auraToken',TOKEN);pinGate(false);show(true)
+  }catch(e){$('#loginErr').textContent=e.message}}
+$('#pinGo').onclick=pinLogin;$('#pinIn').onkeydown=e=>{if(e.key==='Enter')pinLogin()};
+/* ---------- seguridad (ajustes) ---------- */
+function renderSecurity(){
+  const on=!!S.pinEnabled;
+  $('#secSub').textContent=on?t('secOn'):t('secOff');
+  $('#pinCur').classList.toggle('hidden',!on);$('#pinOff').classList.toggle('hidden',!on);
+  $('#pinSetLbl').textContent=on?t('pinChange'):t('pinEnable');
+  $('#pinNew').placeholder=on?t('pinNewPh'):t('pinPh');
+}
+async function pinCall(body,msg){
+  try{const r=await fetch('/api/pin',{method:'POST',headers:{'X-Token':TOKEN,'X-Session':SESSION,'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();
+    if(!d.ok){toast(pinError(d));return}
+    setSession(d.session||'');$('#pinCur').value='';$('#pinNew').value='';await load();toast(msg)}catch(e){toast(e.message)}}
+$('#pinSet').onclick=()=>{const pin=$('#pinNew').value.trim();if(!/^\d{4,8}$/.test(pin)){toast(t('pinFormat'));return}pinCall({action:'set',pin,current:$('#pinCur').value.trim()},S.pinEnabled?t('pinChanged'):t('pinEnabled'))};
+$('#pinOff').onclick=()=>{const cur=$('#pinCur').value.trim();if(!cur){toast(t('pinNeedCur'));$('#pinCur').focus();return}pinCall({action:'disable',current:cur},t('pinDisabled'))};
+function show(on){$('#login').classList.toggle('hidden',on);$('#appUi').classList.toggle('hidden',!on);
+  if(on)pairStop();else if($('#pinGate').classList.contains('hidden')&&!pairId&&!pairEnded){['#pairBox','#useTok'].forEach(x=>$(x).classList.remove('hidden'));pairStart()}}
+/* Entrar con el QR: la TV muestra el QR y un código; en el ordenador se aprueba con el mando */
+let pairId=null,pairTimer=null,pairEnded=false;
+function pairStop(){pairId=null;clearTimeout(pairTimer)}
+async function pairStart(){
+  pairStop();pairEnded=false;$('#pairAgain').classList.add('hidden');$('#pairCode').classList.add('wait');$('#pairCode').textContent='· · · ·';$('#pairMsg').textContent=t('pairLook');
+  try{const d=await (await fetch('/api/pair',{method:'POST'})).json();
+    if(!d.ok){pairTimer=setTimeout(pairStart,4500);return}
+    pairId=d.id;$('#pairCode').classList.remove('wait');$('#pairCode').textContent=d.code.split('').join(' ');pairTimer=setTimeout(pairPoll,1200);
+  }catch(e){$('#pairMsg').textContent=t('offline');pairTimer=setTimeout(pairStart,5000)}
+}
+async function pairPoll(){
+  const id=pairId;if(!id)return;
+  try{const d=await (await fetch('/api/pair/status?id='+id)).json();if(id!==pairId)return;
+    if(d.state==='approved'){pairStop();TOKEN=d.token;try{localStorage.setItem('auraToken',TOKEN)}catch(e){}
+      if(d.pin){pinGate(true);return}
+      try{await load();show(true)}catch(e){$('#loginErr').textContent=e.message}return}
+    if(d.state==='denied'||d.state==='expired'){pairStop();pairEnded=true;$('#pairCode').textContent='· · · ·';$('#pairMsg').textContent=t(d.state==='denied'?'pairDenied':'pairExpired');$('#pairAgain').classList.remove('hidden');return}
+  }catch(e){}
+  pairTimer=setTimeout(pairPoll,1500);
+}
+$('#pairAgain').onclick=pairStart;
+$('#useTok').onclick=()=>{const b=$('#tokBox'),open=b.classList.toggle('hidden')===false;if(open)setTimeout(()=>$('#tok').focus(),40)};
+$('#go').onclick=login;$('#tok').onkeydown=e=>{if(e.key==='Enter')login()};$('#logout').onclick=logout;
+
+/* ---------- navegación ---------- */
+$$('.nav').forEach(b=>b.onclick=()=>{TAB=b.dataset.tab;$$('.nav').forEach(x=>x.classList.toggle('on',x===b));$$('[data-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.panel!==TAB));$('#title').textContent=t(TAB);window.scrollTo({top:0,behavior:'smooth'})});
+
+/* ---------- mando ---------- */
+$$('[data-k]').forEach(b=>b.onclick=async()=>{try{const r=await api('/api/key',{method:'POST',body:{key:b.dataset.k}});if(!r.ok)toast(t('keyFail'))}catch(e){toast(e.message)}});
+$$('[data-power]').forEach(b=>b.onclick=async()=>{try{const r=await api('/api/power',{method:'POST',body:{action:b.dataset.power}});toast(r.ok?t(b.dataset.power):'—')}catch(e){toast(e.message)}});
+async function sendText(){const v=$('#txt').value.trim();if(!v)return;try{const r=await api('/api/text',{method:'POST',body:{text:v}});if(r.ok){$('#txt').value='';toast(t('sent'))}else toast(t('noField'))}catch(e){toast(e.message)}}
+$('#sendTxt').onclick=sendText;$('#txt').onkeydown=e=>{if(e.key==='Enter')sendText()};
+$('#shotBtn').onclick=async()=>{try{const b=await api('/api/screenshot');const i=$('#shot');i.src=URL.createObjectURL(b);i.classList.remove('hidden')}catch(e){toast(e.message)}};
+async function launch(pkg){try{await api('/api/launch',{method:'POST',body:{pkg}});toast(t('opening'))}catch(e){toast(e.message)}}
+async function save(partial,msg){try{await api('/api/config',{method:'POST',body:partial});await load();if(msg)toast(msg)}catch(e){toast(e.message)}}
+
+/* Ventana de confirmación. Con código de seguridad activado lo pide (pin:false para no pedirlo). */
+function ask({title,text='',yes,icon='trash',danger=true,pin=true,run}){
+  return new Promise(res=>{
+    const box=$('#ask');let needPin=pin&&!!(S&&S.pinEnabled),busy=false;
+    box.classList.toggle('danger',danger);$('#askIc').innerHTML=ICON(icon);
+    $('#askTitle').textContent=title;$('#askText').textContent=text;$('#askText').classList.toggle('hidden',!text);
+    $('#askYes').textContent=yes;$('#askNo').textContent=t('cancel');$('#askErr').textContent='';
+    const pinRow=on=>{$('#askPinRow').classList.toggle('hidden',!on);if(on){$('#askPin').placeholder=t('askPinPh');setTimeout(()=>$('#askPin').focus(),40)}};
+    $('#askPin').value='';pinRow(needPin);box.classList.remove('hidden');if(!needPin)setTimeout(()=>$('#askYes').focus(),40);
+    const close=v=>{box.classList.add('hidden');document.removeEventListener('keydown',onKey);res(v)};
+    const go=async()=>{if(busy)return;const p=$('#askPin').value.trim();
+      if(needPin&&!/^\d{4,8}$/.test(p)){$('#askErr').textContent=t('pinFormat');$('#askPin').focus();return}
+      busy=true;$('#askYes').disabled=true;$('#askErr').textContent='';
+      try{await run(needPin?p:'');close(true)}
+      catch(e){const d=e.data||{error:e.message};
+        if(d.error==='pin_confirm'){needPin=true;pinRow(true);$('#askErr').textContent=t('askPinPh')}
+        else{$('#askErr').textContent=pinError(d);if(d.error==='bad_pin'){$('#askPin').value='';$('#askPin').focus()}}}
+      finally{busy=false;$('#askYes').disabled=false}};
+    const onKey=e=>{if(e.key==='Escape')close(false);else if(e.key==='Enter'){e.preventDefault();go()}};
+    document.addEventListener('keydown',onKey);
+    $('#askNo').onclick=()=>close(false);box.onclick=e=>{if(e.target===box)close(false)};$('#askYes').onclick=go;
+  });
+}
+
+/* ---------- apps ---------- */
+const appOf=pkg=>S.apps.find(a=>a.pkg===pkg);
+const iconUrl=pkg=>q('/api/app-icon',{pkg,v:S._v});
+function renderApps(){
+  const c=S.config, pinned=c.pinned.filter(appOf);
+  $('#pinned').innerHTML=pinned.map((p,i)=>{const a=appOf(p);return `<div class="item" data-pkg="${esc(p)}">
+    <span class="handle" title="⇅"><span class="ic">${ICON('menu')}</span></span>
+    <img src="${iconUrl(p)}" alt="" loading="lazy">
+    <div class="name"><b>${esc(a.label)}</b><span>${esc(p)}</span></div>
+    <div class="acts">
+      <button class="icon ghost mv" title="▲" data-mv="${esc(p)}" data-d="-1" ${i===0?'disabled':''}><span class="ic">${ICON('chevron-up')}</span></button>
+      <button class="icon ghost mv" title="▼" data-mv="${esc(p)}" data-d="1" ${i===pinned.length-1?'disabled':''}><span class="ic">${ICON('chevron-down')}</span></button>
+      <button class="icon ghost" title="${t('icon')}" data-icon="${esc(p)}">${'<span class="ic">'+ICON('image')+'</span>'}</button>
+      ${a.customIcon?`<button class="icon ghost" title="${t('iconReset')}" data-reset="${esc(p)}"><span class="ic">${ICON('refresh')}</span></button>`:''}
+      <button class="icon ghost" title="${t('open')}" data-open="${esc(p)}"><span class="ic">${ICON('play')}</span></button>
+      <button class="icon ghost danger" title="${t('unpin')}" data-unpin="${esc(p)}"><span class="ic">${ICON('minus')}</span></button>
+      ${a.removable?`<button class="icon ghost danger" title="${t('uninstall')}" data-uninst="${esc(p)}"><span class="ic">${ICON('trash')}</span></button>`:''}
+    </div></div>`}).join('');
+  const others=S.apps.filter(a=>!c.pinned.includes(a.pkg)&&a.label.toLowerCase().includes(appQuery));
+  $('#others').innerHTML=others.map(a=>`<div class="appcard ${a.hidden?'dim':''}">
+    <img src="${iconUrl(a.pkg)}" alt="" loading="lazy">${a.hidden?`<span class="badge">${t('hiddenBadge')}</span>`:''}
+    <div class="meta"><b title="${esc(a.label)}">${esc(a.label)}</b>
+      <button class="icon ghost" title="${a.hidden?t('show'):t('hide')}" data-hide="${esc(a.pkg)}"><span class="ic">${ICON(a.hidden?'eye-off':'eye')}</span></button>
+      <button class="icon ghost" title="${t('icon')}" data-icon="${esc(a.pkg)}"><span class="ic">${ICON('image')}</span></button>
+      ${a.removable?`<button class="icon ghost danger" title="${t('uninstall')}" data-uninst="${esc(a.pkg)}"><span class="ic">${ICON('trash')}</span></button>`:''}
+      <button class="icon pri" title="${t('pin')}" data-pin="${esc(a.pkg)}"><span class="ic">${ICON('plus')}</span></button>
+    </div></div>`).join('');
+  // Abrir app: favoritas (fila principal) o todas las del Fire TV, con + para añadirla a la fila
+  const qAll=QMODE==='all', qList=qAll?[...pinned.map(appOf),...S.apps.filter(a=>!c.pinned.includes(a.pkg)).sort((a,b)=>a.hidden-b.hidden)]:pinned.map(appOf);
+  seg('quickSeg',QMODE);$('#quickSub').textContent=qAll?t('openAllSub'):t('openAppSub');
+  $('#quick').innerHTML=qList.map(a=>`<button class="qa ${a.hidden?'dim':''}" data-open="${esc(a.pkg)}"><img src="${iconUrl(a.pkg)}" alt="" loading="lazy"><span class="lbl">${esc(a.label)}</span>${qAll&&!c.pinned.includes(a.pkg)?`<span class="add" role="button" title="${t('pin')}" data-pin="${esc(a.pkg)}"><span class="ic">${ICON('plus')}</span></span>`:''}</button>`).join('');
+  // Ajustes del Fire TV (lista cerrada que manda la TV)
+  $$('.fs').forEach(box=>box.innerHTML=(S.fireSettings||[]).map(f=>`<button data-fs="${esc(f.id)}"><span class="ic">${ICON(FS_ICON[f.id]||'settings')}</span><span class="txt"><b>${esc(f.title)}</b><small>${esc(f.sub)}</small></span><span class="ic go">${ICON('arrow-up-right')}</span></button>`).join(''));
+  $$('[data-fs]').forEach(b=>b.onclick=async()=>{try{const r=await api('/api/fire-settings',{method:'POST',body:{page:b.dataset.fs}});toast(r.ok?t('fsOpened'):'—')}catch(e){toast(e.message)}});
+  $$('[data-open]').forEach(b=>b.onclick=()=>launch(b.dataset.open));
+  $$('[data-unpin]').forEach(b=>b.onclick=()=>save({pinned:S.config.pinned.filter(x=>x!==b.dataset.unpin)},t('removed')));
+  $$('[data-pin]').forEach(b=>b.onclick=e=>{e.stopPropagation();save({pinned:[...S.config.pinned,b.dataset.pin],hidden:S.config.hidden.filter(h=>h!==b.dataset.pin)},t('added'))});
+  $$('[data-hide]').forEach(b=>b.onclick=()=>{const h=S.config.hidden,p=b.dataset.hide,isH=h.includes(p);save({hidden:isH?h.filter(x=>x!==p):[...h,p]},isH?t('shown'):t('hiddenT'))});
+  $$('[data-icon]').forEach(b=>b.onclick=()=>pickIcon(b.dataset.icon));
+  $$('[data-uninst]').forEach(b=>b.onclick=()=>{const pkg=b.dataset.uninst,a=appOf(pkg);
+    ask({title:t('askUninstT').replace('{app}',a?a.label:pkg),text:t('askUninstX'),yes:t('uninstall'),icon:'trash',
+      run:async pin=>{const r=await api('/api/uninstall',{method:'POST',body:{pkg},pin});if(!r.ok)throw new Error(r.error||'—');pollInstall(true)}})});
+  $$('[data-reset]').forEach(b=>b.onclick=async()=>{try{await api(q('/api/icon',{pkg:b.dataset.reset,reset:1}),{method:'POST',body:{}});S._v=Date.now();await load();toast(t('iconReset'))}catch(e){toast(e.message)}});
+  sortable($('#pinned'));
+  $$('[data-mv]').forEach(b=>b.onclick=()=>moveApp(b.dataset.mv,+b.dataset.d));
+}
+$$('#quickSeg button').forEach(b=>b.onclick=()=>{QMODE=b.dataset.v;try{localStorage.setItem('auraQuick',QMODE)}catch(e){}renderApps()});
+$('#appSearch').oninput=e=>{appQuery=e.target.value.trim().toLowerCase();renderApps()};
+/* ---------- instalar / desinstalar ---------- */
+let instTimer=null,instSince=0;
+const INST_ACTIVE=['downloading','installing','confirm','uninstall_confirm'];
+function renderInstall2(st){
+  const box=$('#instStatus');if(!st||st.phase==='idle'){box.classList.add('hidden');return}
+  const pct=st.progress>=0?st.progress:null, active=INST_ACTIVE.includes(st.phase);
+  box.className='inst'+(st.phase==='done'||st.phase==='uninstalled'?' ok':st.phase==='failed'?' err':'');
+  const confirmUi=st.phase==='confirm'||st.phase==='uninstall_confirm';
+  box.innerHTML=`<b>${esc(st.label||'App')}</b><div class="mut">${esc(t('ph_'+st.phase))}${st.message?' · '+esc(st.message):''}</div>
+    ${st.phase==='downloading'?`<div class="prog"><div style="width:${pct??5}%"></div></div>`:''}
+    ${confirmUi?`<div class="mini"><button data-ik="up"><span class="ic">${ICON('chevron-up')}</span></button><button data-ik="down"><span class="ic">${ICON('chevron-down')}</span></button><button data-ik="left"><span class="ic">${ICON('chevron-left')}</span></button><button data-ik="right"><span class="ic">${ICON('chevron-right')}</span></button><button class="pri" data-ik="ok">OK</button><button data-ik="back"><span class="ic">${ICON('arrow-left')}</span></button></div>`:''}
+    ${st.phase==='done'&&st.pkg?`<div class="mini"><button class="pri" data-iopen="${esc(st.pkg)}"><span class="ic">${ICON('play')}</span>${t('open')}</button>${S&&!S.config.pinned.includes(st.pkg)?`<button data-ipin="${esc(st.pkg)}"><span class="ic">${ICON('plus')}</span>${t('pin')}</button>`:''}</div>`:''}`;
+  box.querySelectorAll('[data-ik]').forEach(b=>b.onclick=()=>api('/api/key',{method:'POST',body:{key:b.dataset.ik}}).catch(e=>toast(e.message)));
+  box.querySelectorAll('[data-iopen]').forEach(b=>b.onclick=()=>launch(b.dataset.iopen));
+  box.querySelectorAll('[data-ipin]').forEach(b=>b.onclick=()=>save({pinned:[...S.config.pinned,b.dataset.ipin],hidden:S.config.hidden.filter(h=>h!==b.dataset.ipin)},t('added')));
+}
+async function pollInstall(start){
+  if(start){instSince=Date.now();clearTimeout(instTimer)}
+  let st;try{st=await api('/api/install')}catch(e){return}
+  renderInstall2(st);
+  const active=INST_ACTIVE.includes(st.phase);
+  if(active&&Date.now()-instSince<180000){instTimer=setTimeout(()=>pollInstall(false),1000)}
+  else if(!active){load()}
+}
+function uploadApk(f){
+  if(!/\.apk$/i.test(f.name)){toast(t('apkOnly'));return}
+  if(f.size>300*1024*1024){toast(t('apkTooBig'));return}
+  ask({title:t('askInstT').replace('{app}',f.name),text:t('askInstX'),yes:t('installGo'),icon:'download',danger:false,
+    run:async pin=>{if(pin)await api('/api/verify-pin',{method:'POST',body:{},pin});sendApk(f,pin)}});
+}
+function sendApk(f,pin){
+  const fd=new FormData();fd.append('file',f,f.name);const x=new XMLHttpRequest(),bar=$('#apkProg');bar.classList.remove('hidden');bar.firstElementChild.style.width='0';
+  x.open('POST',q('/api/install',{}));x.setRequestHeader('X-Token',TOKEN);if(SESSION)x.setRequestHeader('X-Session',SESSION);if(pin)x.setRequestHeader('X-Pin',pin);
+  x.upload.onprogress=e=>{if(e.lengthComputable)bar.firstElementChild.style.width=(e.loaded/e.total*100).toFixed(1)+'%'};
+  x.onload=()=>{bar.classList.add('hidden');let r={};try{r=JSON.parse(x.responseText)}catch(e){}if(x.status===200)pollInstall(true);else toast(r.error||'—')};
+  x.onerror=()=>{bar.classList.add('hidden');toast(t('offline'))};x.send(fd);
+}
+$('#apkUp').onchange=e=>{if(e.target.files[0])uploadApk(e.target.files[0]);e.target.value=''};
+const apkDrop=$('#apkDrop');['dragenter','dragover'].forEach(ev=>apkDrop.addEventListener(ev,e=>{e.preventDefault();apkDrop.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>apkDrop.addEventListener(ev,e=>{e.preventDefault();apkDrop.classList.remove('over')}));
+apkDrop.addEventListener('drop',e=>{const f=[...e.dataTransfer.files][0];if(f)uploadApk(f)});
+$('#apkUrlGo').onclick=()=>{const url=$('#apkUrl').value.trim();if(!url)return;let name=url;try{name=decodeURIComponent(new URL(url).pathname.split('/').pop())||url}catch(e){}
+  ask({title:t('askInstT').replace('{app}',name),text:t('askInstX'),yes:t('installGo'),icon:'download',danger:false,
+    run:async pin=>{await api('/api/install',{method:'POST',body:{url},pin});$('#apkUrl').value='';pollInstall(true)}})};
+$('#apkUrl').onkeydown=e=>{if(e.key==='Enter')$('#apkUrlGo').click()};
+$('#storeGo').onclick=async()=>{const v=$('#storeQ').value.trim();if(!v)return;try{const r=await api('/api/appstore',{method:'POST',body:{q:v}});toast(r.ok?t('storeOpened'):'—')}catch(e){toast(e.message)}};
+$('#storeQ').onkeydown=e=>{if(e.key==='Enter')$('#storeGo').click()};
+
+function pickIcon(pkg){const f=document.createElement('input');f.type='file';f.accept='image/*';f.onchange=async()=>{const fd=new FormData();fd.append('file',f.files[0]);try{await api(q('/api/icon',{pkg}),{method:'POST',form:fd});S._v=Date.now();await load();toast(t('iconOk'))}catch(e){toast(e.message)}};f.click()}
+
+/* Arrastrar y soltar con eventos pointer: ratón y táctil */
+function sortable(list){
+  // Los eventos se escuchan en la ventana: al mover la fila en la lista el movil pierde la captura del puntero
+  list.querySelectorAll('.handle').forEach(h=>h.addEventListener('pointerdown',e=>{
+    if(e.button>0)return;
+    const item=h.closest('.item');e.preventDefault();item.classList.add('dragging');
+    const before=[...list.children].map(i=>i.dataset.pkg).join();
+    const move=ev=>{ev.preventDefault();const y=ev.clientY;const sib=[...list.querySelectorAll('.item:not(.dragging)')];
+      const next=sib.find(x=>{const r=x.getBoundingClientRect();return y<r.top+r.height/2})||null;
+      if(item.nextElementSibling!==next)list.insertBefore(item,next);
+      if(y<70)window.scrollBy(0,-12);else if(y>innerHeight-110)window.scrollBy(0,12)};
+    const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);item.classList.remove('dragging');
+      const order=[...list.children].map(i=>i.dataset.pkg);if(order.join()!==before){const rest=S.config.pinned.filter(p=>!order.includes(p));save({pinned:[...order,...rest]},t('order'))}};
+    window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
+  }));
+}
+// Subir / bajar con botones (comodo en el movil)
+function moveApp(pkg,d){const vis=S.config.pinned.filter(appOf),k=vis.indexOf(pkg),j=k+d;if(k<0||j<0||j>=vis.length)return;
+  [vis[k],vis[j]]=[vis[j],vis[k]];const rest=S.config.pinned.filter(p=>!vis.includes(p));save({pinned:[...vis,...rest]},t('order'))}
+
+/* ---------- fondos ---------- */
+const SLOTS=[['morning','sunrise'],['afternoon','sun'],['evening','sunset'],['night','moon-stars']];
+const videoOf=id=>(S&&S.config.videos||[]).find(v=>'video:'+v.id===id);
+const wpName=id=>id.startsWith('video:')?((videoOf(id)||{}).name||'video'):id.replace(/^(asset|file):/,'').replace(/^(wp|nat)_/,'').replace(/\.jpg$/,'').replace(/_/g,' ');
+const thumb=id=>q('/api/wallpaper-thumb',{id});
+function renderWalls(){
+  const c=S.config;
+  $$('#modeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===c.wallpaperMode));
+  $('#rot').value=c.rotateMinutes;$('#dayStart').value=c.dayStart;$('#nightStart').value=c.nightStart;
+  $('#slots').innerHTML=SLOTS.map(([s,ic])=>{const l=(c.slots[s]||[]).filter(w=>S.wallpapers.includes(w));return `<div class="slot"><h3><span class="ic">${ICON(ic)}</span>${t(s)}<span>${l.length} ${t('wallpapers')}</span></h3>
+    <div class="mini">${l.slice(0,8).map(w=>`<img src="${thumb(w)}" loading="lazy" alt="">`).join('')}</div></div>`}).join('');
+  $('#gallery').innerHTML=S.wallpapers.map(w=>`<div class="wp ${S.currentWallpaper===w?'cur':''}">
+    <img src="${thumb(w)}" loading="lazy" alt="${esc(wpName(w))}">
+    ${S.currentWallpaper===w?`<span class="tag tog on">${t('now')}</span>`:''}
+    ${w.startsWith('video:')?`<span class="vbadge"><span class="ic">${ICON('play')}</span>${t('video')}</span>`:''}
+    ${w.startsWith('file:')||w.startsWith('video:')?`<button class="del icon" data-del="${esc(w)}"><span class="ic">${ICON('trash')}</span></button>`:''}
+    <div class="bar">${SLOTS.map(([s])=>`<span class="tog ${(c.slots[s]||[]).includes(w)?'on':''}" data-slot="${s}" data-w="${esc(w)}">${t(s)}</span>`).join('')}
+      ${c.wallpaperMode==='fixed'?`<span class="tog ${c.fixedWallpaper===w?'on':''}" data-fix="${esc(w)}">${t('fix')}</span>`:''}</div></div>`).join('');
+  $$('[data-slot]').forEach(e=>e.onclick=()=>{const s={...S.config.slots},l=s[e.dataset.slot]||[],w=e.dataset.w;s[e.dataset.slot]=l.includes(w)?l.filter(x=>x!==w):[...l,w];save({slots:s},t('saved'))});
+  $$('[data-fix]').forEach(e=>e.onclick=()=>save({fixedWallpaper:e.dataset.fix},t('fixedSet')));
+  $$('[data-del]').forEach(e=>e.onclick=()=>{const id=e.dataset.del,vid=id.startsWith('video:');
+    ask({title:t('confirmDel'),yes:t('delete'),pin:false,run:async()=>{await api(q(vid?'/api/video':'/api/wallpaper',{delete:1,id}),{method:'POST',body:{}});await load();toast(t('deleted'))}})});
+  // Fondos de video
+  const vids=c.videos||[];
+  $('#videos').innerHTML=vids.map(v=>{const id='video:'+v.id;return `<div class="item"><img src="${thumb(id)}&v=${S._v}" alt="" loading="lazy"><div class="name"><b>${esc(v.name)}</b><span>${t('kind_'+v.kind)}${c.wallpaperMode==='fixed'&&c.fixedWallpaper===id?' · '+t('fix'):''}</span></div>
+    <div class="acts">${c.wallpaperMode==='fixed'?`<button class="icon" title="${t('fix')}" data-fix="${esc(id)}"><span class="ic">${ICON('star')}</span></button>`:''}<button class="icon" data-del="${esc(id)}"><span class="ic">${ICON('trash')}</span></button></div></div>`}).join('')||`<p class="mut small">${t('noVideos')}</p>`;
+  $$('#videos [data-fix]').forEach(e=>e.onclick=()=>save({fixedWallpaper:e.dataset.fix},t('fixedSet')));
+  $$('#videos [data-del]').forEach(e=>e.onclick=()=>ask({title:t('confirmDel'),yes:t('delete'),pin:false,run:async()=>{await api(q('/api/video',{delete:1,id:e.dataset.del}),{method:'POST',body:{}});await load();toast(t('deleted'))}}));
+  // Fondo concreto por app (opcional)
+  const pinned=c.pinned.filter(appOf), aw=c.appWallpapers||{};
+  $('#appWallCard').style.opacity=c.wallpaperMode==='app'?1:.55;
+  $('#appWalls').innerHTML=pinned.map(p=>`<div class="item"><img src="${iconUrl(p)}" alt="" loading="lazy"><div class="name"><b>${esc(appOf(p).label)}</b></div>
+    <select data-aw="${esc(p)}"><option value="">${t('auto')}</option>${S.wallpapers.map(w=>`<option value="${esc(w)}" ${aw[p]===w?'selected':''}>${esc(wpName(w))}</option>`).join('')}</select></div>`).join('');
+  $$('[data-aw]').forEach(sel=>sel.onchange=()=>{const m={...(S.config.appWallpapers||{})};if(sel.value)m[sel.dataset.aw]=sel.value;else delete m[sel.dataset.aw];save({appWallpapers:m},t('saved'))});
+  renderCredits();
+}
+$$('#modeSeg button').forEach(b=>b.onclick=()=>save({wallpaperMode:b.dataset.mode},t('saved')));
+$('#rot').onchange=e=>save({rotateMinutes:Math.max(1,+e.target.value||20)},t('saved'));
+$('#dayStart').onchange=e=>save({dayStart:+e.target.value},t('saved'));
+$('#nightStart').onchange=e=>save({nightStart:+e.target.value},t('saved'));
+async function upload(files){for(const f of files){const fd=new FormData();fd.append('file',f,f.name);try{await api('/api/wallpaper',{method:'POST',form:fd})}catch(e){toast(f.name+': '+e.message)}}await load();toast(t('uploaded'))}
+$('#up').onchange=e=>{if(e.target.files.length)upload([...e.target.files]);e.target.value=''};
+const drop=$('#drop');['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
+drop.addEventListener('drop',e=>{const f=[...e.dataTransfer.files].filter(x=>x.type.startsWith('image/'));if(f.length)upload(f)});
+// Video: enlace (YouTube o directo) o archivo con barra de progreso
+$('#vAdd').onclick=async()=>{const url=$('#vUrl').value.trim();if(!url)return;try{const r=await api('/api/video',{method:'POST',body:{url,name:$('#vName').value.trim()}});if(!r.ok)throw new Error(r.error||'—');$('#vUrl').value='';$('#vName').value='';await load();toast(t('videoAdded'));setTimeout(()=>{S._v=Date.now();load()},4000)}catch(e){toast(e.message)}};
+$('#vUrl').onkeydown=e=>{if(e.key==='Enter')$('#vAdd').click()};
+function uploadVideo(f){
+  if(f.size>300*1024*1024){toast(t('videoTooBig'));return}
+  const fd=new FormData();fd.append('file',f,f.name);const x=new XMLHttpRequest(),bar=$('#vProg');bar.classList.remove('hidden');bar.firstElementChild.style.width='0';
+  x.open('POST',q('/api/video',{}));x.setRequestHeader('X-Token',TOKEN);
+  x.upload.onprogress=e=>{if(e.lengthComputable)bar.firstElementChild.style.width=(e.loaded/e.total*100).toFixed(1)+'%'};
+  x.onload=async()=>{bar.classList.add('hidden');let r={};try{r=JSON.parse(x.responseText)}catch(e){}if(r.ok){S._v=Date.now();await load();toast(t('videoAdded'))}else toast(r.error||t('videoBad'))};
+  x.onerror=()=>{bar.classList.add('hidden');toast(t('offline'))};x.send(fd);
+}
+$('#vUp').onchange=e=>{if(e.target.files[0])uploadVideo(e.target.files[0]);e.target.value=''};
+const vDrop=$('#vDrop');['dragenter','dragover'].forEach(ev=>vDrop.addEventListener(ev,e=>{e.preventDefault();vDrop.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>vDrop.addEventListener(ev,e=>{e.preventDefault();vDrop.classList.remove('over')}));
+vDrop.addEventListener('drop',e=>{const f=[...e.dataTransfer.files].find(x=>x.type.startsWith('video/')||/\.(mkv|mov|webm|mp4|m4v)$/i.test(x.name));if(f)uploadVideo(f)});
+
+async function renderCredits(){
+  if(!CREDITS){try{CREDITS=await (await fetch('/credits.json')).json()}catch(e){CREDITS=[]}}
+  $('#credits').innerHTML=CREDITS.map(c=>`<div><a href="${esc(c.source)}" target="_blank" rel="noopener">${esc(c.title)}</a> — ${esc(c.author)} · ${esc(c.license)}</div>`).join('')+
+    `<div>${LANG==='en'?'Icons':'Iconos'}: <a href="https://reicon.dev" target="_blank" rel="noopener">Reicon</a> (MIT)</div>`;
+}
+
+/* ---------- ajustes ---------- */
+function seg(id,val){$$(`#${id} button`).forEach(b=>b.classList.toggle('on',b.dataset.v===String(val)))}
+function renderPrefs(){
+  const c=S.config;seg('langSeg',c.language);seg('unitSeg',c.tempUnit);seg('clockSeg',c.use24h?'24':'12');seg('rowSeg',c.showAllAppsRow?'1':'0');
+  seg('fontSeg',c.fontFamily);seg('clockSizeSeg',c.clockSize);seg('dateSizeSeg',c.dateSize);seg('tileSizeSeg',c.tileSize);
+  $$('[data-bool]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===(c[g.dataset.bool]?'1':'0'))));
+  renderSecurity();
+  // Salvapantallas
+  seg('saverSeg',c.screensaverMinutes);seg('offSeg',c.screenOffMinutes);
+  $('#saverNote').classList.toggle('hidden',!!c.manageScreensaver);
+  // Privacidad y sistema
+  const tw=S.tweaks||{items:[]};
+  $('#permWarn').classList.toggle('hidden',!!(tw.canSecure&&tw.canSystem&&tw.canDnd));
+  $('#tweaks').innerHTML=[...tw.items].sort((a,b)=>a.manual-b.manual).map(i=>{
+    const active=i.blocked==null?null:(i.blocked===i.inverted); // la funcion de Amazon (o No interrumpir) esta encendida
+    const right=i.manual?`<span class="tag-manual">${t('manual')}</span>`
+      :`<span class="state">${active==null?'—':active?t('stOn'):t('stOff')}</span><button class="sw ${active?'on':''}" data-tw="${esc(i.id)}" data-b="${i.blocked?1:0}" ${i.allowed?'':'disabled'} aria-label="${esc(i.title)}"></button>`;
+    return `<div class="item ${i.manual?'manual':''}"><span class="ic">${ICON(TW_ICON[i.id]||'settings')}</span><div class="name"><small class="grp">${esc(i.group)}</small><b>${esc(i.title)}</b><span>${esc(i.sub)}</span></div>${right}</div>`}).join('');
+  $$('[data-tw]').forEach(b=>b.onclick=async()=>{try{const r=await api('/api/tweaks',{method:'POST',body:{id:b.dataset.tw,blocked:b.dataset.b!=='1'}});if(r.ok===false)throw new Error(r.error);await load();toast(t('saved'))}catch(e){toast(e.message)}});
+  $('#curPlace').textContent=c.weather?`${c.weather.name}${S.weather?` · ${S.weather.temp}°${S.weather.unit} · ${S.weather.description}`:''}`:t('noPlace');
+}
+$$('#saverSeg button').forEach(b=>b.onclick=()=>save({screensaverMinutes:+b.dataset.v},t('saved')));
+$$('#offSeg button').forEach(b=>b.onclick=()=>save({screenOffMinutes:+b.dataset.v},t('saved')));
+$('#saverPreview').onclick=async()=>{try{const r=await api('/api/screensaver',{method:'POST',body:{}});toast(r.ok?t('saverShown'):'—')}catch(e){toast(e.message)}};
+$('#twAll').onclick=async()=>{try{await api('/api/tweaks',{method:'POST',body:{all:true}});await load();toast(t('privDone'))}catch(e){toast(e.message)}};
+$('#twWelcome').onclick=async()=>{try{await api('/api/onboarding',{method:'POST',body:{}});toast(t('welcomeShown'))}catch(e){toast(e.message)}};
+$$('#langSeg button').forEach(b=>b.onclick=()=>save({language:b.dataset.v}));
+$$('#unitSeg button').forEach(b=>b.onclick=()=>save({tempUnit:b.dataset.v},t('saved')));
+$$('#clockSeg button').forEach(b=>b.onclick=()=>save({use24h:b.dataset.v==='24'},t('saved')));
+$$('#rowSeg button').forEach(b=>b.onclick=()=>save({showAllAppsRow:b.dataset.v==='1'},t('saved')));
+[['fontSeg','fontFamily'],['clockSizeSeg','clockSize'],['dateSizeSeg','dateSize'],['tileSizeSeg','tileSize']].forEach(([id,key])=>
+  $$(`#${id} button`).forEach(b=>b.onclick=()=>save({[key]:b.dataset.v},t('saved'))));
+$$('[data-bool]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.onclick=()=>{const k=g.dataset.bool,v=b.dataset.v==='1';
+  if(k==='launcherEnabled'&&!v&&S.config.launcherEnabled){
+    ask({title:t('askLaunchT'),text:t('askLaunchX'),yes:t('askLaunchY'),icon:'power',
+      run:async pin=>{await api('/api/config',{method:'POST',body:{launcherEnabled:false},pin});await load();toast(t('saved'))}});return}
+  save({[k]:v},t('saved'))}));
+async function searchCity(){
+  const v=$('#city').value.trim();if(!v)return;
+  try{const r=await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(v)}&count=6&language=${LANG}`)).json();
+    const res=r.results||[];
+    $('#cities').innerHTML=res.map((c,i)=>`<button class="item" data-c="${i}" style="justify-content:flex-start;text-align:left"><span class="ic">${ICON('globe')}</span><div class="name"><b>${esc(c.name)}</b><span>${esc([c.admin1,c.country].filter(Boolean).join(', '))}</span></div></button>`).join('')||`<p class="mut small">${t('noResults')}</p>`;
+    $$('[data-c]').forEach(b=>b.onclick=()=>{const c=res[+b.dataset.c];$('#cities').innerHTML='';$('#city').value='';save({weather:{name:c.name,lat:c.latitude,lon:c.longitude}},t('locationSaved'))});
+  }catch(e){toast(e.message)}
+}
+$('#citySearch').onclick=searchCity;$('#city').onkeydown=e=>{if(e.key==='Enter')searchCity()};
+
+/* ---------- PWA ---------- */
+let installEvt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;renderInstall()});
+$('#installBtn').onclick=async()=>{if(!installEvt)return;installEvt.prompt();await installEvt.userChoice;installEvt=null;renderInstall()};
+function renderInstall(){
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  $('#installBtn').classList.toggle('hidden',!installEvt);
+  $('#installHelp').textContent=installEvt?t('installReady'):(ios?t('installIos'):t('installHttp'));
+}
+if('serviceWorker' in navigator&&window.isSecureContext){navigator.serviceWorker.register('/sw.js').catch(()=>{})}
+
+/* ---------- carga ---------- */
+async function load(){
+  S={...(await api('/api/state')),_v:(S&&S._v)||Date.now()};
+  const lang=S.config.language;if(lang!==LANG){LANG=lang;applyStatic()}
+  const w=S.weather;
+  $('#wchip').innerHTML=w?`<span class="ic">${ICON(w.icon)}</span>${w.temp}°${w.unit} <span class="mut">${esc(w.place)}</span>`:'';
+  $('#wchip').classList.toggle('hidden',!w);
+  $('#sideInfo').innerHTML=`<div style="color:#fff;font-weight:600;margin-bottom:4px">${esc(S.ip)}:${S.port}</div>${S.apps.length} apps · ${S.wallpapers.length} ${t('wallpapers')}${S.version?` · Aura ${esc(S.version)}`:''}`;
+  if(S.currentWallpaper)$('#backdrop').style.backgroundImage=`url("${thumb(S.currentWallpaper)}")`;
+  renderApps();renderWalls();renderPrefs();renderInstall();
+}
+applyStatic();
+if(TOKEN){load().then(()=>{pinGate(false);show(true);api('/api/install').then(st=>{if(Date.now()-st.ts<600000){renderInstall2(st);if(INST_ACTIVE.includes(st.phase))pollInstall(true)}}).catch(()=>{});if(hashTab){const b=document.querySelector(`.nav[data-tab="${hashTab}"]`);if(b)b.click()}}).catch(()=>show(false))}else show(false);
+setInterval(()=>{if(TOKEN&&!document.hidden&&!document.querySelector('.dragging'))api('/api/state').then(n=>{const changed=n.currentWallpaper!==S.currentWallpaper;S={...n,_v:S._v};if(changed)load()}).catch(()=>{})},30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+# Gradle / Android Studio
+.gradle/
+.kotlin/
+build/
+captures/
+.idea/
+*.iml
+.externalNativeBuild/
+.cxx/
+local.properties
+
+# Firma: NUNCA se suben las claves (en GitHub van como secretos)
+keystore.properties
+*.keystore
+*.jks
+
+# Registros de fallos de la JVM (pueden contener datos de la TV)
+hs_err_pid*.log
+replay_pid*.log
+
+# Landing local: APKs y release.js se generan (en GitHub los crea release.yml)
+landing/downloads/
+landing/release.js
+
+# Python
+__pycache__/
+*.pyc
+
+# Configuracion personal (token y PIN de tu TV)
+.mcp.json
+.env
+
+# Sistema
+.DS_Store
+Thumbs.db

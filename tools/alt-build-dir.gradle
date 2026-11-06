@@ -1,0 +1,5 @@
+// deploy.ps1 lo usa cuando app\build\outputs\apk\debug\app-debug.apk esta bloqueado
+// (por ejemplo, abierto en LDPlayer): compila en D:\TV\aura-build en su lugar.
+allprojects {
+    layout.buildDirectory.set(new File(rootDir.parentFile, "aura-build/" + project.name))
+}
