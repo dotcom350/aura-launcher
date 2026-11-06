@@ -51,6 +51,7 @@ Launcher para Amazon Fire TV (Fire OS 7/8) con panel web, salvapantallas propio,
 
 **Descarga:** la última versión siempre está en
 [`Aura.apk`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura.apk) (enlace fijo) y en la landing: <https://dotcom350.github.io/aura-launcher/>.
+En el Fire TV, con la app **Downloader**, basta con escribir el código **`7090026`**.
 
 ### Opción A — Desde el PC con ADB (recomendada)
 
@@ -80,7 +81,8 @@ Si tienes el código fuente, `scripts\deploy.ps1 -Device 192.168.1.50:5555` hace
 
 1. Instala **Downloader** desde la Appstore.
 2. *Ajustes › Mi Fire TV › Opciones de desarrollador › Apps de origen desconocido* → activa Downloader.
-3. En Downloader escribe el enlace directo a `Aura.apk` e instala.
+3. Abre Downloader, escribe el código **`7090026`** en el campo de dirección y pulsa **Go**: descarga Aura automáticamente.
+4. Pulsa **Instalar**.
 
 Aura funciona, pero la bienvenida no podrá cambiar los ajustes del sistema hasta que hagas una vez los
 comandos `pm grant` / `appops` de la opción A. El servicio de accesibilidad se puede activar a mano en

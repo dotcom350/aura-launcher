@@ -79,6 +79,7 @@ ol b{color:var(--txt)}
 .copy{position:absolute;top:8px;right:8px;border:1px solid var(--line2);background:#1d1b18;color:var(--mut);border-radius:8px;padding:4px 9px;font-size:12px;cursor:pointer}
 .copy:hover{color:var(--txt)}
 .note{margin-top:14px;font-size:13.5px;color:var(--mut)}
+.dlcode{margin:12px 0 0;padding:16px;border-radius:16px;text-align:center;font:700 clamp(34px,5vw,46px)/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em;color:var(--acc);background:#0a0908;border:1px solid rgba(240,201,135,.3)}
 
 /* descarga */
 .dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:stretch}
@@ -181,11 +182,11 @@ footer .wrap{display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between}
         <p>Sin cables. Necesitas la app gratuita Downloader de la Appstore.</p>
         <ol>
           <li>En el Fire TV: <b>Ajustes › Mi Fire TV › Opciones de desarrollador</b> y permite <b>Apps de origen desconocido</b> para Downloader.</li>
-          <li>Abre Downloader y escribe el enlace directo al APK (donde publiques esta carpeta):</li>
+          <li>Abre Downloader, escribe este código en el campo de dirección y pulsa <b>Go</b>. Downloader descarga Aura automáticamente:</li>
         </ol>
-        <div class="code js-url">https://tu-dominio/downloads/Aura-latest.apk<button class="copy" data-copy>Copiar</button></div>
+        <div class="dlcode" aria-label="Código de Downloader">7090026</div>
         <ol start="3" style="margin-top:12px">
-          <li>Instala, abre Aura y sigue la bienvenida.</li>
+          <li>Pulsa <b>Instalar</b>, abre Aura y sigue la bienvenida.</li>
         </ol>
         <p class="note">Para que la bienvenida pueda desactivar los ajustes de Amazon hace falta, una sola vez, el paso del PC (permisos por ADB).</p>
       </div>
@@ -263,14 +264,6 @@ adb shell settings put secure accessibility_enabled 1<button class="copy" data-c
       var ul = document.querySelector('.js-notes'); ul.innerHTML = '';
       r.notes.forEach(function(n){ var li = document.createElement('li'); li.textContent = n.replace(/\*\*/g, ''); ul.appendChild(li); });
     }
-  }
-  // Enlace para Downloader: el enlace fijo de GitHub si existe; si no, la direccion real de esta pagina
-  var latest = r && r.latest;
-  if (latest && /^https?:/.test(latest)) {
-    all('.js-url', function(e){ e.firstChild.nodeValue = latest; });
-  } else if (location.protocol.indexOf('http') === 0) {
-    var base = location.href.replace(/[#?].*$/, '').replace(/[^\/]*$/, '');
-    all('.js-url', function(e){ e.firstChild.nodeValue = base + 'downloads/Aura-latest.apk'; });
   }
   all('[data-copy]', function(b){
     b.addEventListener('click', function(){
