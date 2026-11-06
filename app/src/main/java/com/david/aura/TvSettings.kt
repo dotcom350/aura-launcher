@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -79,6 +80,7 @@ internal fun TvSettings(cfg: AuraConfig, s: Strings, blur: ImageBitmap?, weather
         runCatching { first.requestFocus() }
     }
     fun set(transform: (AuraConfig) -> AuraConfig) = Aura.config.update(transform)
+    val upd by Updater.state.collectAsState()
     fun onOff(v: Boolean) = if (v) s.on else s.off
 
     val modes = listOf("app", "time", "rotate", "fixed")
@@ -165,6 +167,9 @@ internal fun TvSettings(cfg: AuraConfig, s: Strings, blur: ImageBitmap?, weather
         SettingItem(R.drawable.ri_shield_check, s.privacyHeader, sub = if (missing) s.privacyMissing else s.privacySub, header = true),
         securityItem,
     ) + tweakItems + listOf(
+        SettingItem(R.drawable.ri_refresh, s.updTitle, "v${BuildConfig.VERSION_NAME}", sub = s.updSub(upd), onClick = {
+            if (upd.phase == "available") Updater.state.value = upd.copy(prompt = true) else Updater.checkNow()
+        }),
         SettingItem(R.drawable.ri_sparkles, s.redoWelcome, sub = s.redoWelcomeSub, onClick = {
             set { it.copy(onboardingDone = false) }
             onClose()

@@ -226,7 +226,7 @@ class WebServer(private val ctx: Context, port: Int) : NanoHTTPD(port) {
                 }
             }
 
-"/api/tweaks" -> {
+            "/api/tweaks" -> {
                 // Lista cerrada de SystemTweaks: solo id + bloqueado si/no
                 if (s.method == Method.POST) {
                     if (arg("all") == "1" || arg("all") == "true") {
@@ -238,6 +238,19 @@ class WebServer(private val ctx: Context, port: Int) : NanoHTTPD(port) {
                     }
                 }
                 json(tweaksJson())
+            }
+
+            "/api/update" -> {
+                // Actualizaciones de Aura desde las Releases de GitHub (solo el repositorio oficial)
+                if (s.method == Method.POST) {
+                    when (arg("action")) {
+                        "check" -> Updater.checkNow()
+                        "install" -> if (!Updater.install(ctx)) return bad("No hay ninguna version nueva lista para instalar")
+                        "later" -> Updater.later()
+                        else -> return bad("action debe ser check, install o later")
+                    }
+                }
+                json(AuraJson.encodeToJsonElement(Updater.State.serializer(), Updater.state.value).jsonObject)
             }
 
             "/api/onboarding" -> {
@@ -384,6 +397,7 @@ class WebServer(private val ctx: Context, port: Int) : NanoHTTPD(port) {
             put("tweaks", tweaksJson())
             put("pinEnabled", Security.enabled())
             put("version", BuildConfig.VERSION_NAME)
+            put("update", AuraJson.encodeToJsonElement(Updater.State.serializer(), Updater.state.value))
             putJsonArray("fireSettings") {
                 FireSettings.PAGES.forEach { p ->
                     addJsonObject { put("id", p.id); put("title", p.title(cfg.language)); put("sub", p.sub(cfg.language)) }

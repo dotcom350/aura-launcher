@@ -85,6 +85,14 @@ object Installer {
         return true
     }
 
+    /** APK ya descargado en el dispositivo (lo usa [Updater]). El estado pasa a "installing" al momento. */
+    fun installFile(ctx: Context, apk: File): Boolean {
+        if (busy()) return false
+        set(Status("installing", "Aura"))
+        Aura.scope.launch { install(ctx, apk) }
+        return true
+    }
+
     /** Descarga un APK de un enlace http/https y lo instala. */
     fun installUrl(ctx: Context, url: String): Boolean {
         if (busy()) return false

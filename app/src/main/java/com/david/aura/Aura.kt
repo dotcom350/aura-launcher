@@ -54,6 +54,8 @@ object Aura {
         app = context.applicationContext
         config = ConfigStore(app)
         runCatching { Installer.register(app) }
+        // Busca versiones nuevas en GitHub (cada 6 horas)
+        Updater.start()
         // Reaplica los ajustes del sistema que Fire OS revierte (al arrancar y cada 10 minutos)
         runCatching { SystemTweaks.watch(app) }
         scope.launch {

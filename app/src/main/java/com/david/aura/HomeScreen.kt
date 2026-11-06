@@ -106,6 +106,10 @@ fun AuraHome() {
     var wallpaperPkg by remember { mutableStateOf<String?>(null) }
     var showInfo by remember { mutableStateOf(false) }
     val pairReq by Pairing.shown.collectAsState()
+    // Aviso de actualizacion (Updater): izquierda/derecha eligen, OK confirma, Atras = mas tarde
+    val upd by Updater.state.collectAsState()
+    var updSel by remember { mutableStateOf(true) }
+    LaunchedEffect(upd.latest, upd.prompt) { updSel = true }
     var pairAllow by remember { mutableStateOf(true) }
     LaunchedEffect(pairReq?.id) { pairAllow = true }
     var showAll by remember { mutableStateOf(false) }
@@ -218,6 +222,22 @@ fun AuraHome() {
                     val moving = movingPkg
                     val pair = pairReq
                     when {
+                        upd.prompt && cfg.onboardingDone && pair == null -> {
+                            val down = e.type == KeyEventType.KeyDown
+                            val up = e.type == KeyEventType.KeyUp
+                            when (upd.phase) {
+                                "available" -> when {
+                                    down && e.key == Key.DirectionLeft -> updSel = true
+                                    down && e.key == Key.DirectionRight -> updSel = false
+                                    up && e.isCenter() -> if (updSel) Updater.install(ctx) else Updater.later()
+                                    up && e.isBack() -> Updater.later()
+                                }
+                                // Descargando o instalando: Atras oculta el aviso (sigue en segundo plano)
+                                "downloading", "installing", "checking" -> if (up && e.isBack()) Updater.closeMessage()
+                                else -> if (up && (e.isCenter() || e.isBack())) Updater.closeMessage()
+                            }
+                            true
+                        }
                         // Aviso de conectar un dispositivo: se maneja aqui para que el foco de la fila no se lo quede
                         pair != null -> {
                             when {
@@ -312,6 +332,8 @@ fun AuraHome() {
             if (showInfo) InfoPanel(cfg, s, images?.blur, Modifier.align(Alignment.Center))
 
             pairReq?.let { PairPanel(it, pairAllow, cfg, s, images?.blur) }
+
+            if (upd.prompt && pairReq == null) UpdatePanel(upd, updSel, s, images?.blur)
 
             toast?.let { GlassToast(it, images?.blur, Modifier.align(Alignment.BottomCenter).padding(bottom = 28.dp)) }
             }

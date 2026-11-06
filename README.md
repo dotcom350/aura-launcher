@@ -38,6 +38,7 @@ Launcher para Amazon Fire TV (Fire OS 7/8) con panel web, salvapantallas propio,
 | **Fondos** | 18 fotos de naturaleza que cambian según la hora o según la app enfocada, fotos subidas por ti y **fondos de vídeo** (YouTube, enlace directo o archivo). |
 | **Panel web** | Desde el móvil o el PC (escaneando un QR): mando a distancia, escribir, encender/apagar, ordenar apps, fondos, ajustes, ajustes del Fire TV, instalar y desinstalar apps. |
 | **Seguridad** | Código de seguridad (PIN) opcional para el panel web y emparejamiento de dispositivos nuevos con aprobación en la TV. |
+| **Actualizaciones** | Avisa en la TV cuando hay versión nueva en GitHub, la descarga con barra de progreso y se instala sola. |
 | **Control por voz** | Servidor MCP para que un asistente (por ejemplo Claude) maneje la TV: abrir apps, teclas, volumen, encender… |
 
 <p align="center">
@@ -88,10 +89,26 @@ Aura funciona, pero la bienvenida no podrá cambiar los ajustes del sistema hast
 comandos `pm grant` / `appops` de la opción A. El servicio de accesibilidad se puede activar a mano en
 *Ajustes › Accesibilidad*.
 
+### ¿Es obligatorio el paso del PC?
+
+Para que la bienvenida **desactive los ajustes de Amazon**, sí, una sola vez (los permisos se mantienen al actualizar).
+Android solo deja conceder `WRITE_SECURE_SETTINGS` desde ADB: ninguna app puede dárselo a sí misma, es una
+protección del sistema. Fire OS además bloquea que una app se conecte por ADB a su propia TV, así que Aura
+tampoco puede hacerlo por ti.
+
+Sin el paso del PC funciona todo lo demás: el inicio, el botón Inicio (activando la accesibilidad a mano),
+el panel web, los fondos, el salvapantallas de vista previa, instalar apps y las actualizaciones.
+
 ### Actualizar
 
-Instala el APK nuevo encima (`adb install -r` o desde el panel web, pestaña Apps). Las versiones
-publicadas van firmadas con la misma clave, así que **no se pierden ajustes, token ni PIN**.
+**Automático:** Aura comprueba cada 6 horas si hay una versión nueva en GitHub. Si la hay, la TV muestra un aviso:
+*Actualizar ahora* descarga la versión con una barra de progreso, la instala y Aura se reinicia sola.
+También puedes buscarla a mano en *Ajustes › Actualizaciones* o en el panel web (*Ajustes › Este dispositivo*).
+La primera vez, si no hiciste el paso del PC, Fire OS puede pedir que permitas a Aura instalar apps.
+
+**A mano:** instala el APK nuevo encima (`adb install -r`, Downloader o el panel web, pestaña Apps).
+
+Las versiones publicadas van firmadas con la misma clave, así que **no se pierden ajustes, token ni PIN**.
 Fire OS desactiva el servicio de accesibilidad al actualizar; Aura lo reactiva sola si tiene el permiso
 `WRITE_SECURE_SETTINGS` (si no, repite el comando `settings put secure enabled_accessibility_services …`).
 
@@ -213,6 +230,7 @@ Fire OS no permite elegir otro launcher, así que Aura combina varias piezas:
 | `Screensaver.kt` | `AuraDream` (DreamService del sistema) y vista previa. |
 | `Wallpapers.kt`, `Videos.kt` | Fondos: selección por franja/app, desenfoque para el efecto cristal, vídeo con ExoPlayer o el reproductor de YouTube. |
 | `Installer.kt` | Instalar (PackageInstaller) y desinstalar apps pedidas desde la web. |
+| `Updater.kt` | Busca versiones nuevas en las Releases de GitHub, aviso en la TV, descarga con progreso e instalación. |
 | `Security.kt`, `Pairing.kt` | PIN (PBKDF2, sesiones de 30 días) y emparejamiento con aprobación en la TV. |
 | `TvSettings.kt`, `FireSettings.kt`, `Ui.kt` | Ajustes en la TV, accesos a los ajustes de Amazon, textos ES/EN y estilos. |
 
@@ -231,6 +249,7 @@ con PIN activado, `X-Session` (se obtiene en `/api/login`).
 | `POST /api/key` · `/api/text` · `/api/power` · `GET /api/screenshot` | Mando: tecla, texto, encender/apagar, captura. |
 | `POST /api/launch` · `/api/fire-settings` · `/api/appstore` | Abrir app, pantalla de ajustes de Amazon, búsqueda en la Appstore. |
 | `POST /api/install` · `/api/uninstall`, `GET /api/install` | Instalar/desinstalar y estado. |
+| `GET/POST /api/update` | Estado de la actualización; `action`: `check`, `install`, `later`. |
 | `POST /api/tweaks` · `/api/onboarding` · `/api/screensaver` | Ajustes del sistema, repetir bienvenida, ver salvapantallas. |
 | `/api/wallpaper` · `/api/wallpaper-thumb` · `/api/video` · `/api/icon` · `/api/app-icon` | Fondos, vídeos e iconos. |
 

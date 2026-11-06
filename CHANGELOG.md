@@ -6,6 +6,10 @@ usa estas notas en la Release y en la landing. Escribe cada cambio como una lín
 
 ## [Sin publicar]
 
+- Actualizaciones desde la propia app: Aura avisa en la TV cuando hay una versión nueva, la descarga con barra de progreso y se instala sola. También desde *Ajustes › Actualizaciones* y desde el panel web.
+- Instalar con Downloader usando el código 7090026.
+- El README explica por qué el paso del PC (ADB) es necesario para la limpieza de ajustes.
+
 ## [1.8] - 2026-11-05
 
 - El proyecto se prepara para GitHub: README completo, versión en `version.properties` y publicación automática con GitHub Actions (APK firmado en Releases y landing en GitHub Pages).

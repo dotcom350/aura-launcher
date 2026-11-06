@@ -240,6 +240,20 @@ section[data-panel]{display:flex;flex-direction:column;gap:var(--gap)}
 .tw .grp{display:block;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--acc);margin-bottom:2px}
 #pinGate .row{margin-top:4px}
 
+/* actualizaciones */
+.upd{padding:14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line);margin-bottom:14px}
+.upd.new{border-color:rgba(240,201,135,.45);background:var(--acc-soft)}
+.upd-head{display:flex;align-items:center;gap:10px}
+.upd-head>div{flex:1;min-width:0}
+.upd-head b{display:block;font-size:15px}
+.upd-head span{display:block;font-size:12.5px;color:var(--mut)}
+.upd .prog{margin-top:12px}
+.upd ul{margin:10px 0 0;padding-left:18px;color:var(--mut);font-size:12.5px;display:flex;flex-direction:column;gap:4px}
+.upd ul:empty{display:none}
+button.sm{padding:8px 14px;font-size:13px}
+.upd-chip{border-color:rgba(240,201,135,.5);color:var(--acc);cursor:pointer}
+.upd-chip .ic{width:15px;height:15px}
+
 /* videos */
 .vadd{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:8px;margin-bottom:12px}
 .vlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:14px}
@@ -365,6 +379,7 @@ main,.card,.grid2>*{min-width:0}
     <header class="top">
       <h1 id="title"></h1>
       <span class="grow"></span>
+      <button class="chip upd-chip hidden" id="updChip"><span class="ic" data-i="sparkles"></span><span id="updChipTxt"></span></button>
       <span class="chip" id="wchip"></span>
       <span class="chip"><span class="dot" id="dot"></span><span id="conn"></span></span>
     </header>
@@ -609,6 +624,12 @@ main,.card,.grid2>*{min-width:0}
         </div>
           <div class="card">
           <h2><span class="ic" data-i="download"></span><span data-t="device"></span></h2>
+          <div class="upd" id="updBox">
+            <div class="upd-head"><div><b id="updVer"></b><span id="updMsg"></span></div>
+              <button class="pri sm" id="updBtn"></button></div>
+            <div class="prog hidden" id="updProg"><div></div></div>
+            <ul class="changes small" id="updNotes"></ul>
+          </div>
           <p class="sub" id="installHelp"></p>
           <div class="card-actions"><button class="pri hidden" id="installBtn"><span class="ic" data-i="download"></span><span data-t="installBtn"></span></button><button class="danger" id="logout"><span class="ic" data-i="logout"></span><span data-t="logout"></span></button></div>
         </div>
@@ -655,6 +676,9 @@ const T={
   storeTitle:'Appstore de Amazon',storeSub:'Busca una app y se abre la tienda en la TV para instalarla.',storePh:'Nombre de la app…',storeOpened:'Appstore abierta en la TV',
   uninstall:'Desinstalar',cancel:'Cancelar',delete:'Borrar',askUninstT:'¿Desinstalar {app}?',askUninstX:'Se borrará del Fire TV con todos sus datos. No se puede deshacer.',askInstT:'¿Instalar {app}?',askInstX:'Aura la instalará y aceptará la confirmación en la TV.',askLaunchT:'¿Desactivar Aura?',askLaunchX:'El botón Inicio volverá a abrir el inicio de Amazon.',askLaunchY:'Desactivar',askPinPh:'Código de seguridad',
   ph_downloading:'Descargando…',ph_installing:'Preparando la instalación…',ph_confirm:'Aceptando en la TV…',ph_done:'Instalada',ph_failed:'No se completó',ph_uninstall_confirm:'Desinstalando…',ph_uninstalled:'Desinstalada',ph_idle:'',
+  updNew:'Nueva versión {v} disponible',updDown:'Descargando {p} % · {a} / {b} MB',updInst:'Instalando… Aura se reiniciará sola en la TV',updChecking:'Buscando…',
+  updOk:'Tienes la última versión',updFail:'No se pudo actualizar',updIdle:'Busca si hay una versión nueva',updNow:'Actualizar a {v}',updCheck:'Buscar actualizaciones',
+  updChip:'Versión {v} disponible',updChipBusy:'Actualizando la TV…',
   device:'Este dispositivo',secTitle:'Seguridad',secOff:'Sin código: cualquiera que escanee el QR puede controlar la TV. Pon un código de 4 a 8 cifras y se pedirá al entrar desde cada móvil o PC.',
   secOn:'Código activado: se pide al entrar desde un dispositivo nuevo y para quitarlo. Si lo olvidas, quítalo en la TV (Ajustes › Código de seguridad).',
   pinCurPh:'Código actual',pinNewPh:'Código nuevo (4-8 cifras)',pinPh:'Código (4-8 cifras)',pinEnable:'Activar código',pinChange:'Cambiar código',pinDisable:'Quitar código',
@@ -690,6 +714,9 @@ const T={
   storeTitle:'Amazon Appstore',storeSub:'Search for an app and the store opens on the TV so you can install it.',storePh:'App name…',storeOpened:'Appstore opened on the TV',
   uninstall:'Uninstall',cancel:'Cancel',delete:'Delete',askUninstT:'Uninstall {app}?',askUninstX:'It will be removed from the Fire TV with all its data. This can’t be undone.',askInstT:'Install {app}?',askInstX:'Aura will install it and accept the confirmation on the TV.',askLaunchT:'Turn off Aura?',askLaunchX:'The Home button will open the Amazon home screen again.',askLaunchY:'Turn off',askPinPh:'Security code',
   ph_downloading:'Downloading…',ph_installing:'Preparing the install…',ph_confirm:'Accepting on the TV…',ph_done:'Installed',ph_failed:'Not completed',ph_uninstall_confirm:'Uninstalling…',ph_uninstalled:'Uninstalled',ph_idle:'',
+  updNew:'Version {v} available',updDown:'Downloading {p} % · {a} / {b} MB',updInst:'Installing… Aura will restart on the TV',updChecking:'Checking…',
+  updOk:'You have the latest version',updFail:'Could not update',updIdle:'Check for a new version',updNow:'Update to {v}',updCheck:'Check for updates',
+  updChip:'Version {v} available',updChipBusy:'Updating the TV…',
   device:'This device',secTitle:'Security',secOff:'No code: anyone who scans the QR can control the TV. Set a 4–8 digit code and it will be asked on every new phone or PC.',
   secOn:'Code on: it is asked when signing in from a new device and to remove it. If you forget it, remove it on the TV (Settings › Security code).',
   pinCurPh:'Current code',pinNewPh:'New code (4–8 digits)',pinPh:'Code (4–8 digits)',pinEnable:'Turn on code',pinChange:'Change code',pinDisable:'Remove code',
@@ -1021,7 +1048,27 @@ async function renderCredits(){
 
 /* ---------- ajustes ---------- */
 function seg(id,val){$$(`#${id} button`).forEach(b=>b.classList.toggle('on',b.dataset.v===String(val)))}
+let updTimer=null;
+function renderUpdate(){
+  const u=S.update||{phase:'idle',current:S.version||''}, ph=u.phase, busy=['checking','downloading','installing'].includes(ph);
+  $('#updVer').textContent='Aura '+(u.current||S.version||'');
+  $('#updMsg').textContent=ph==='available'?t('updNew').replace('{v}',u.latest):ph==='downloading'?t('updDown').replace('{p}',Math.max(0,u.progress)).replace('{a}',u.downloadedMb).replace('{b}',u.sizeMb)
+    :ph==='installing'?t('updInst'):ph==='checking'?t('updChecking'):ph==='uptodate'?t('updOk'):ph==='failed'?(u.message||t('updFail')):t('updIdle');
+  const btn=$('#updBtn');btn.disabled=busy;btn.textContent=ph==='available'?t('updNow').replace('{v}',u.latest):t('updCheck');
+  btn.onclick=async()=>{try{const r=await api('/api/update',{method:'POST',body:{action:ph==='available'?'install':'check'}});S.update=r;renderUpdate();pollUpdate()}catch(e){toast(e.message)}};
+  $('#updBox').classList.toggle('new',ph==='available');
+  const pr=$('#updProg');pr.classList.toggle('hidden',!(ph==='downloading'||ph==='installing'));pr.firstElementChild.style.width=(ph==='installing'?100:Math.max(0,u.progress))+'%';
+  $('#updNotes').innerHTML=ph==='available'?(u.notes||[]).slice(0,4).map(n=>`<li>${esc(n)}</li>`).join(''):'';
+  $('#updChip').classList.toggle('hidden',!(ph==='available'||ph==='downloading'||ph==='installing'));
+  $('#updChipTxt').textContent=ph==='available'?t('updChip').replace('{v}',u.latest):t('updChipBusy');
+}
+function pollUpdate(){
+  clearTimeout(updTimer);
+  updTimer=setTimeout(async()=>{try{S.update=await api('/api/update');renderUpdate()}catch(e){}
+    if(['checking','downloading','installing'].includes((S.update||{}).phase))pollUpdate()},1200);
+}
 function renderPrefs(){
+  renderUpdate();
   const c=S.config;seg('langSeg',c.language);seg('unitSeg',c.tempUnit);seg('clockSeg',c.use24h?'24':'12');seg('rowSeg',c.showAllAppsRow?'1':'0');
   seg('fontSeg',c.fontFamily);seg('clockSizeSeg',c.clockSize);seg('dateSizeSeg',c.dateSize);seg('tileSizeSeg',c.tileSize);
   $$('[data-bool]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===(c[g.dataset.bool]?'1':'0'))));
@@ -1040,6 +1087,7 @@ function renderPrefs(){
   $$('[data-tw]').forEach(b=>b.onclick=async()=>{try{const r=await api('/api/tweaks',{method:'POST',body:{id:b.dataset.tw,blocked:b.dataset.b!=='1'}});if(r.ok===false)throw new Error(r.error);await load();toast(t('saved'))}catch(e){toast(e.message)}});
   $('#curPlace').textContent=c.weather?`${c.weather.name}${S.weather?` · ${S.weather.temp}°${S.weather.unit} · ${S.weather.description}`:''}`:t('noPlace');
 }
+$('#updChip').onclick=()=>{const b=document.querySelector('.nav[data-tab="prefs"]');if(b)b.click();setTimeout(()=>$('#updBox').scrollIntoView({behavior:'smooth',block:'center'}),150)};
 $$('#saverSeg button').forEach(b=>b.onclick=()=>save({screensaverMinutes:+b.dataset.v},t('saved')));
 $$('#offSeg button').forEach(b=>b.onclick=()=>save({screenOffMinutes:+b.dataset.v},t('saved')));
 $('#saverPreview').onclick=async()=>{try{const r=await api('/api/screensaver',{method:'POST',body:{}});toast(r.ok?t('saverShown'):'—')}catch(e){toast(e.message)}};
@@ -1090,7 +1138,7 @@ async function load(){
 }
 applyStatic();
 if(TOKEN){load().then(()=>{pinGate(false);show(true);api('/api/install').then(st=>{if(Date.now()-st.ts<600000){renderInstall2(st);if(INST_ACTIVE.includes(st.phase))pollInstall(true)}}).catch(()=>{});if(hashTab){const b=document.querySelector(`.nav[data-tab="${hashTab}"]`);if(b)b.click()}}).catch(()=>show(false))}else show(false);
-setInterval(()=>{if(TOKEN&&!document.hidden&&!document.querySelector('.dragging'))api('/api/state').then(n=>{const changed=n.currentWallpaper!==S.currentWallpaper;S={...n,_v:S._v};if(changed)load()}).catch(()=>{})},30000);
+setInterval(()=>{if(TOKEN&&!document.hidden&&!document.querySelector('.dragging'))api('/api/state').then(n=>{const changed=n.currentWallpaper!==S.currentWallpaper;S={...n,_v:S._v};if(changed)load();else renderUpdate()}).catch(()=>{})},30000);
 </script>
 </body>
 </html>

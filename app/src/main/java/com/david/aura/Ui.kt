@@ -80,6 +80,26 @@ internal class Strings(val lang: String) {
     // Ajustes
     val settings = if (en) "Settings" else "Ajustes"
     val connectPhone = if (en) "Connect your phone" else "Conecta tu móvil"
+    // Actualizaciones
+    val updAvailable = if (en) "New version available" else "Nueva versión disponible"
+    val updDownloading = if (en) "Downloading update…" else "Descargando la actualización…"
+    val updInstalling = if (en) "Installing…" else "Instalando…"
+    val updFailed = if (en) "Could not update" else "No se pudo actualizar"
+    val updUpToDate = if (en) "You're up to date" else "Ya tienes la última versión"
+    val updNow = if (en) "Update now" else "Actualizar ahora"
+    val updLater = if (en) "Later" else "Más tarde"
+    val updClose = if (en) "Close" else "Cerrar"
+    val updInstallHint = if (en) "Aura will restart by itself in a few seconds." else "Aura se reiniciará sola en unos segundos."
+    val updTitle = if (en) "Updates" else "Actualizaciones"
+    fun updSub(st: Updater.State) = when (st.phase) {
+        "available" -> if (en) "Version ${st.latest} is available · press OK" else "Disponible la versión ${st.latest} · pulsa OK"
+        "checking" -> if (en) "Checking…" else "Buscando…"
+        "downloading" -> (if (en) "Downloading " else "Descargando ") + "${st.progress.coerceAtLeast(0)} %"
+        "installing" -> updInstalling
+        "failed" -> st.message.ifEmpty { updFailed }
+        "uptodate" -> updUpToDate
+        else -> if (en) "Press OK to check for a new version" else "Pulsa OK para buscar una versión nueva"
+    }
     val pairTitle = if (en) "Connect a new device" else "Conectar un dispositivo"
     val pairFrom = if (en) "Request from" else "Lo pide"
     val pairPhone = if (en) "On a phone: scan the QR code." else "En el móvil: escanea el código QR."
