@@ -6,6 +6,8 @@ usa estas notas en la Release y en la landing. Escribe cada cambio como una lín
 
 ## [Sin publicar]
 
+## [1.8] - 2026-11-05
+
 - El proyecto se prepara para GitHub: README completo, versión en `version.properties` y publicación automática con GitHub Actions (APK firmado en Releases y landing en GitHub Pages).
 - Se quitan los 5 fondos de macOS (son de Apple y no se pueden publicar). Quedan los 18 de naturaleza de Wikimedia Commons; las configuraciones guardadas se migran solas.
 - Las versiones publicadas se firman con una clave fija, así se actualizan encima sin perder los ajustes.
