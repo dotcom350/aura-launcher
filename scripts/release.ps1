@@ -52,14 +52,21 @@ if ($Test) {
     Set-Location $root
 }
 
-git add version.properties CHANGELOG.md
-git commit -m "Aura $Version"
-git tag -a "v$Version" -m "Aura $Version"
+# git escribe avisos por stderr (p. ej. LF/CRLF); en Windows PowerShell eso no debe parar el script
+function Run-Git {
+    $ErrorActionPreference = "Continue"
+    & git @args 2>&1 | ForEach-Object { "$_" } | Out-Host
+    if ($LASTEXITCODE -ne 0) { Fail "git $($args -join ' ') fallo" }
+}
+
+Run-Git add version.properties CHANGELOG.md
+Run-Git commit -q -m "Aura $Version"
+Run-Git tag -a "v$Version" -m "Aura $Version"
 Write-Host "Version $Version (code $newCode) lista: commit y etiqueta v$Version creados." -ForegroundColor Green
 
 if ($Push) {
-    git push origin HEAD
-    git push origin "v$Version"
+    Run-Git push origin HEAD
+    Run-Git push origin "v$Version"
     Write-Host "Subido. GitHub Actions compila y publica la Release en unos minutos (pestana Actions)." -ForegroundColor Green
 } else {
     Write-Host "Para publicarla:  git push origin HEAD; git push origin v$Version"
