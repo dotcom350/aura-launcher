@@ -24,8 +24,9 @@ if (git tag --list "v$Version") { Fail "La etiqueta v$Version ya existe." }
 # --- version.properties ---
 $propsPath = Join-Path $root "version.properties"
 $props = Get-Content $propsPath
-$oldName = ($props -match '^versionName=') -replace 'versionName=', ''
-$oldCode = [int](($props -match '^versionCode=') -replace 'versionCode=', '')
+function Prop($key) { (($props | Where-Object { $_ -match "^$key=" } | Select-Object -First 1) -replace "^$key=", '').Trim() }
+$oldName = Prop "versionName"
+$oldCode = [int](Prop "versionCode")
 if ([version]$Version -le [version]$oldName) { Fail "La version nueva ($Version) debe ser mayor que la actual ($oldName)." }
 $newCode = $oldCode + 1
 

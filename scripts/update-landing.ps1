@@ -18,7 +18,7 @@ if (-not $Apk) {
     $Apk = ($candidates | Get-Item | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
 }
 
-$name = ((Get-Content (Join-Path $root "version.properties")) -match "^versionName=") -replace "versionName=", ""
+$name = ((Get-Content (Join-Path $root "version.properties") | Where-Object { $_ -match "^versionName=" } | Select-Object -First 1) -replace "^versionName=", "").Trim()
 $dl = Join-Path $root "landing\downloads"
 New-Item -ItemType Directory -Force $dl | Out-Null
 Copy-Item $Apk (Join-Path $dl "Aura-$name.apk") -Force
