@@ -2,18 +2,29 @@
 @echo off
 setlocal
 title Instalador de Aura
-chcp 65001 >nul
+"%SystemRoot%\System32\chcp.com" 65001 >nul 2>&1
 rem Argumentos opcionales: -SoloPermisos  -Ip 192.168.1.50
 set "AURA_ARGS=%*"
 set "AURA_BAT=%~f0"
 
+rem PowerShell por su ruta completa: en algunos PC no esta en el PATH
+set "PSEXE=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
+if not exist "%PSEXE%" set "PSEXE=%ProgramFiles%\PowerShell\7\pwsh.exe"
+if not exist "%PSEXE%" (
+  echo.
+  echo   No se encontro PowerShell en este PC. Hace falta Windows 10 u 11.
+  echo.
+  pause
+  exit /b 1
+)
+
 rem Se ejecuta como administrador: si no lo es, se vuelve a abrir pidiendo permiso (ventana de Windows)
 if not defined AURA_NOADMIN (
-  net session >nul 2>&1
+  "%SystemRoot%\System32\net.exe" session >nul 2>&1
   if errorlevel 1 (
     echo.
     echo   Pidiendo permisos de administrador...
-    powershell -NoProfile -Command "$a = @{ FilePath = $env:AURA_BAT; Verb = 'RunAs' }; if ($env:AURA_ARGS) { $a.ArgumentList = $env:AURA_ARGS }; Start-Process @a" >nul 2>&1
+    "%PSEXE%" -NoProfile -Command "$a = @{ FilePath = $env:AURA_BAT; Verb = 'RunAs' }; if ($env:AURA_ARGS) { $a.ArgumentList = $env:AURA_ARGS }; Start-Process @a" >nul 2>&1
     if errorlevel 1 (
       echo.
       echo   No se concedieron permisos de administrador.
@@ -25,7 +36,7 @@ if not defined AURA_NOADMIN (
   )
 )
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$s = Get-Content -LiteralPath $env:AURA_BAT -Raw -Encoding UTF8; $i = $s.IndexOf([char]10 + '#>'); Invoke-Expression $s.Substring($i + 3)"
+"%PSEXE%" -NoProfile -ExecutionPolicy Bypass -Command "$s = Get-Content -LiteralPath $env:AURA_BAT -Raw -Encoding UTF8; $i = $s.IndexOf([char]10 + '#>'); Invoke-Expression $s.Substring($i + 3)"
 rem 0 = bien, 2 = error ya mostrado; cualquier otro codigo = fallo inesperado de PowerShell
 if errorlevel 3 goto inesperado
 if errorlevel 2 exit /b 2
