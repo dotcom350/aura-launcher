@@ -50,18 +50,39 @@ Launcher para Amazon Fire TV (Fire OS 7/8) con panel web, salvapantallas propio,
 
 ## Instalar en un Fire TV
 
-**Descarga:** la última versión siempre está en
-[`Aura.apk`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura.apk) (enlace fijo) y en la landing: <https://dotcom350.github.io/aura-launcher/>.
-En el Fire TV, con la app **Downloader**, basta con escribir el código **`7090026`**.
+**Descargas** (siempre la última versión):
 
-### Opción A — Desde el PC con ADB (recomendada)
+| | |
+|---|---|
+| **Instalador para Windows** (recomendado) | [`Aura-Instalador-Windows.zip`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura-Instalador-Windows.zip) |
+| **APK** | [`Aura.apk`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura.apk) |
+| **En el Fire TV con Downloader** | código **`7090026`** |
+| **Landing** | <https://dotcom350.github.io/aura-launcher/> |
 
-Es la única forma de conceder los permisos que necesita la bienvenida (ver [Permisos](#permisos-y-por-qué-hacen-falta)).
+### Opción A — Instalador para Windows (recomendada, un solo paso)
 
 1. En el Fire TV: **Ajustes › Mi Fire TV › Opciones de desarrollador › Depuración ADB: activada**.
    (Si no ves "Opciones de desarrollador": *Mi Fire TV › Información*, pulsa 7 veces sobre el nombre del dispositivo.)
-2. Mira la IP del Fire TV en *Mi Fire TV › Información › Red*.
-3. En el PC, con [platform-tools](https://developer.android.com/tools/releases/platform-tools):
+2. Descarga [`Aura-Instalador-Windows.zip`](https://github.com/dotcom350/aura-launcher/releases/latest/download/Aura-Instalador-Windows.zip), descomprímelo y haz doble clic en **`Instalar-Aura.bat`**.
+3. Cuando la TV pregunte **"¿Permitir depuración?"**, acepta (marca *Permitir siempre*).
+
+El instalador descarga las herramientas ADB de Google, busca tu Fire TV en la red, descarga la última Aura de
+GitHub, la instala, concede los permisos y la abre. Opciones: `Instalar-Aura.bat -Ip 192.168.1.50` si no encuentra
+la TV, y `Instalar-Aura.bat -SoloPermisos` si Aura ya está instalada (por ejemplo, con Downloader).
+
+### Opción B — Solo con el mando (Downloader)
+
+1. Instala **Downloader** desde la Appstore.
+2. *Ajustes › Mi Fire TV › Opciones de desarrollador › Apps de origen desconocido* → activa Downloader.
+3. Abre Downloader, escribe el código **`7090026`** en el campo de dirección y pulsa **Go**: descarga Aura automáticamente.
+4. Pulsa **Instalar**.
+
+Así Aura funciona, pero **la bienvenida no podrá desactivar los ajustes de Amazon** hasta que des los permisos una vez
+desde un PC (opción A con `-SoloPermisos`, u opción C). El porqué, justo debajo.
+
+### Opción C — A mano con ADB
+
+Con [platform-tools](https://developer.android.com/tools/releases/platform-tools) y la IP del Fire TV (*Mi Fire TV › Información › Red*):
 
 ```powershell
 adb connect 192.168.1.50:5555          # la TV pregunta "¿Permitir depuración?": acepta
@@ -76,28 +97,35 @@ adb shell settings put secure accessibility_enabled 1
 adb shell am start -n com.david.aura/.MainActivity
 ```
 
-Si tienes el código fuente, `scripts\deploy.ps1 -Device 192.168.1.50:5555` hace todo esto de una vez.
+Con el código fuente, `scripts\deploy.ps1 -Device 192.168.1.50:5555` hace lo mismo compilando antes.
 
-### Opción B — Solo con el mando (Downloader)
+### ¿Por qué hace falta el PC una vez?
 
-1. Instala **Downloader** desde la Appstore.
-2. *Ajustes › Mi Fire TV › Opciones de desarrollador › Apps de origen desconocido* → activa Downloader.
-3. Abre Downloader, escribe el código **`7090026`** en el campo de dirección y pulsa **Go**: descarga Aura automáticamente.
-4. Pulsa **Instalar**.
+**Respuesta corta:** porque Android no deja que una app se dé a sí misma permiso para cambiar ajustes del sistema.
+Ese permiso solo se puede conceder desde un ordenador conectado por ADB. Es una protección de Android, no una
+limitación de Aura, y ninguna app de la tienda puede saltársela.
 
-Aura funciona, pero la bienvenida no podrá cambiar los ajustes del sistema hasta que hagas una vez los
-comandos `pm grant` / `appops` de la opción A. El servicio de accesibilidad se puede activar a mano en
-*Ajustes › Accesibilidad*.
+**En detalle:**
 
-### ¿Es obligatorio el paso del PC?
+- Desactivar el rastreo, los anuncios por intereses, la reproducción automática o el salvapantallas de Amazon
+  significa escribir en los *ajustes seguros* del sistema. Para eso hace falta el permiso `WRITE_SECURE_SETTINGS`,
+  que Android reserva a las apps del propio fabricante. La única excepción es `adb shell pm grant`, que se ejecuta
+  desde un PC con la depuración activada: así se garantiza que es el dueño de la TV quien lo autoriza.
+- Lo mismo pasa con *No interrumpir*, *instalar apps* y *abrir al encender*: Fire OS no tiene un menú para concederlos
+  a otras apps, solo ADB.
+- ¿Y si Aura se conectara por ADB a su propia TV? Fire OS lo bloquea: las conexiones ADB que salen de la propia TV
+  se rechazan, y Fire OS no tiene la "depuración inalámbrica" con emparejamiento de Android 11+.
+- Aura podría ir pulsando los interruptores de los menús de Amazon con la accesibilidad, como haría una persona,
+  pero dependería del idioma y de cada versión de Fire OS y se rompería con cualquier actualización de Amazon.
+  ADB es la forma fiable.
 
-Para que la bienvenida **desactive los ajustes de Amazon**, sí, una sola vez (los permisos se mantienen al actualizar).
-Android solo deja conceder `WRITE_SECURE_SETTINGS` desde ADB: ninguna app puede dárselo a sí misma, es una
-protección del sistema. Fire OS además bloquea que una app se conecte por ADB a su propia TV, así que Aura
-tampoco puede hacerlo por ti.
+**Lo bueno:** se hace **una sola vez**. Los permisos se mantienen al actualizar Aura (también con las
+actualizaciones automáticas). Con el instalador para Windows es un doble clic. Después puedes volver a desactivar
+la depuración ADB.
 
-Sin el paso del PC funciona todo lo demás: el inicio, el botón Inicio (activando la accesibilidad a mano),
-el panel web, los fondos, el salvapantallas de vista previa, instalar apps y las actualizaciones.
+**Sin el PC** funciona todo lo demás: el inicio, el panel web, los fondos, el salvapantallas en vista previa,
+instalar apps y las actualizaciones. El botón Inicio necesita la accesibilidad, que sí se puede activar a mano en
+*Ajustes › Accesibilidad › Aura*.
 
 ### Actualizar
 
@@ -195,6 +223,7 @@ aura-launcher/
 │       ├── assets/web/           Panel web (un solo index.html, sin build) + iconos
 │       ├── assets/wallpapers/    Fondos de serie (Wikimedia Commons, ver credits.json)
 │       └── res/                  Iconos vectoriales ri_* (generados), banner
+├── installer/windows/            Instalador para Windows (Instalar-Aura.bat): ADB + Aura + permisos
 ├── mcp/aura_mcp.py               Servidor MCP (control por voz)
 ├── landing/                      Landing estática (GitHub Pages)
 ├── scripts/

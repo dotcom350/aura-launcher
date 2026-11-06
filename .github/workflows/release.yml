@@ -1,6 +1,7 @@
 # Publica una version nueva de Aura cuando se sube una etiqueta vX.Y (scripts/release.ps1 -Push):
 #   1. Compila el APK firmado (clave en los secretos del repositorio).
-#   2. Crea la Release con Aura-X.Y.apk y Aura.apk (enlace fijo: releases/latest/download/Aura.apk).
+#   2. Crea la Release con Aura-X.Y.apk, Aura.apk (enlace fijo: releases/latest/download/Aura.apk)
+#      y Aura-Instalador-Windows.zip.
 #   Al terminar, pages.yml publica la landing con los datos de esta version.
 name: Release
 
@@ -68,6 +69,8 @@ jobs:
             --latest-url "$repo/releases/latest/download/Aura.apk" \
             --notes-out dist/notes.md --out dist/release.js
           cat dist/notes.md
+          # Instalador para Windows (descarga ADB y Aura, instala y concede los permisos)
+          (cd installer/windows && zip -q -r "$GITHUB_WORKSPACE/dist/Aura-Instalador-Windows.zip" .)
 
       - name: Crear la Release
         uses: softprops/action-gh-release@v2
@@ -77,3 +80,4 @@ jobs:
           files: |
             dist/Aura-${{ env.VERSION }}.apk
             dist/Aura.apk
+            dist/Aura-Instalador-Windows.zip

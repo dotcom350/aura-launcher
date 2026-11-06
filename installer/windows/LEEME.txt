@@ -1,0 +1,16 @@
+INSTALADOR DE AURA PARA WINDOWS
+================================
+
+1. En el Fire TV: Ajustes > Mi Fire TV > Opciones de desarrollador > Depuracion ADB: ACTIVADA.
+   (Si no ves "Opciones de desarrollador": Mi Fire TV > Informacion, pulsa 7 veces el nombre del dispositivo.)
+2. Conecta este PC a la misma red Wi-Fi que el Fire TV.
+3. Doble clic en "Instalar-Aura.bat".
+4. Cuando la TV pregunte "Permitir depuracion", acepta (marca "Permitir siempre").
+
+El instalador descarga ADB (de Google) y la ultima version de Aura (de GitHub), la instala y concede los
+permisos que una app no puede darse a si misma. Solo hace falta una vez: los permisos se mantienen al actualizar.
+
+Ya instalada Aura y solo quieres los permisos:   Instalar-Aura.bat -SoloPermisos
+Si no encuentra la TV:                            Instalar-Aura.bat -Ip 192.168.1.50
+
+Mas informacion: https://github.com/dotcom350/aura-launcher
