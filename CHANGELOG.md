@@ -6,6 +6,8 @@ usa estas notas en la Release y en la landing. Escribe cada cambio como una lín
 
 ## [Sin publicar]
 
+## [1.9] - 2026-11-06
+
 - Actualizaciones desde la propia app: Aura avisa en la TV cuando hay una versión nueva, la descarga con barra de progreso y se instala sola. También desde *Ajustes › Actualizaciones* y desde el panel web.
 - Instalar con Downloader usando el código 7090026.
 - Instalador para Windows (Aura-Instalador-Windows.zip en cada Release): descarga ADB y la última Aura, busca el Fire TV en la red, instala y concede los permisos con un doble clic.
